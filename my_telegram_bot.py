@@ -31,7 +31,8 @@ def get_text_messages(message):
                          reply_markup=markup)  # ответ бота
 
     elif message.text == 'Как пользоваться ботом?':
-        str1 = 'Воспользуйтесь командой /add_geo, чтобы добавить ваше местонахождение.'
+        str1 = 'Воспользуйтесь командой /add_geo, чтобы добавить \
+                ваше местонахождение.'
         bot.send_message(message.from_user.id,
                          str1)
 
