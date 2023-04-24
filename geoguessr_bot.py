@@ -22,17 +22,14 @@ def get_address_from_coords(coords):
 
 
 def start(update, context):
-    print('Start!')
     update.message.reply_text('Привет! Это тестовый бот для определения твоего адреса. Отправь мне локацию или координаты (долгота, широта):')
 
 def text(update, context):
-    print('Text!')
     coords = update.message.text
     address_str = get_address_from_coords(coords)
     update.message.reply_text(address_str)
 
 def location(update, context):
-    print('Location!')
     message = update.message
     current_position = (message.location.longitude, message.location.latitude)
     coords = f"{current_position[0]},{current_position[1]}"
@@ -40,8 +37,7 @@ def location(update, context):
     update.message.reply_text(address_str)
 
 def main():
-    print('Main!')
-    updater = Updater("5921166856:AAE0n2fsSAdjDdde2o8EmYUfKNKw4Nrom9E")#, use_context=True)
+    updater = Updater("5921166856:AAE0n2fsSAdjDdde2o8EmYUfKNKw4Nrom9E")
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
