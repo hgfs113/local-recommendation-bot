@@ -1,20 +1,22 @@
 import requests
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
+
 def get_address_from_coords(coords):
     PARAMS = {
         "apikey": "4e6e6cda-7f5c-417b-a6d0-90a5b6445055",
         "format": "json",
         "lang": "ru_RU",
         "kind": "house",
-        "geocode": coords
+        "geocode": coords,
     }
 
     try:
         r = requests.get(url="https://geocode-maps.yandex.ru/1.x/", params=PARAMS)
         json_data = r.json()
         address_str = json_data["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]["metaDataProperty"][
-            "GeocoderMetaData"]["AddressDetails"]["Country"]["AddressLine"]
+            "GeocoderMetaData"
+        ]["AddressDetails"]["Country"]["AddressLine"]
         return address_str
 
     except Exception as e:
@@ -22,12 +24,16 @@ def get_address_from_coords(coords):
 
 
 def start(update, context):
-    update.message.reply_text('Привет! Это тестовый бот для определения твоего адреса. Отправь мне локацию или координаты (долгота, широта):')
+    update.message.reply_text(
+        'Привет! Это тестовый бот для определения твоего адреса. Отправь мне локацию или координаты (долгота, широта):'
+    )
+
 
 def text(update, context):
     coords = update.message.text
     address_str = get_address_from_coords(coords)
     update.message.reply_text(address_str)
+
 
 def location(update, context):
     message = update.message
@@ -35,6 +41,7 @@ def location(update, context):
     coords = f"{current_position[0]},{current_position[1]}"
     address_str = get_address_from_coords(coords)
     update.message.reply_text(address_str)
+
 
 def main():
     updater = Updater("5921166856:AAE0n2fsSAdjDdde2o8EmYUfKNKw4Nrom9E")
@@ -45,6 +52,7 @@ def main():
     dispatcher.add_handler(MessageHandler(Filters.location, location))
     updater.start_polling()
     updater.idle()
+
 
 if __name__ == '__main__':
     main()
