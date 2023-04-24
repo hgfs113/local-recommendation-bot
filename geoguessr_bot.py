@@ -12,20 +12,24 @@ def get_address_from_coords(coords):
     }
 
     try:
-        r = requests.get(url="https://geocode-maps.yandex.ru/1.x/", params=PARAMS)
+        r = requests.get(url="https://geocode-maps.yandex.ru/1.x/",
+                         params=PARAMS)
         json_data = r.json()
-        address_str = json_data["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]["metaDataProperty"][
+        address_str = json_data["response"]["GeoObjectCollection"][
+            "featureMember"][0]["GeoObject"]["metaDataProperty"][
             "GeocoderMetaData"
         ]["AddressDetails"]["Country"]["AddressLine"]
         return address_str
 
-    except Exception as e:
-        return "Не могу определить адрес по этой локации/координатам.\n\nОтправь мне локацию или координаты (долгота, широта):"
+    except Exception:
+        return """Не могу определить адрес по этой локации/координатам.\n\
+            Отправь мне локацию или координаты (долгота, широта):"""
 
 
 def start(update, context):
     update.message.reply_text(
-        'Привет! Это тестовый бот для определения твоего адреса. Отправь мне локацию или координаты (долгота, широта):'
+        """Привет! Это тестовый бот для определения твоего адреса. 
+        Отправь мне локацию или координаты (долгота, широта):"""
     )
 
 
