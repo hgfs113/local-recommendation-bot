@@ -14,7 +14,6 @@ bot = telebot.TeleBot(token=TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
-#     print("start")
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("👋 Поздороваться")
     markup.add(btn1)
@@ -25,7 +24,6 @@ def start(message):
 
 @bot.message_handler(commands=['add_geo'])
 def add_geo(message):
-#     print("add_geo")
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton(text="Отправить местоположение",
                                 request_location=True)
@@ -38,7 +36,6 @@ def add_geo(message):
 
 @bot.message_handler(content_types=["location"])
 def handle_location(message):
-#     print("location")
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     if message.location is not None:
         PARAMS = {
@@ -54,7 +51,6 @@ def handle_location(message):
             r = requests.get(url="https://geocode-maps.yandex.ru/1.x/",
                              params=PARAMS)
             json_data = r.json()
-#             print(json_data)
             address_str = json_data["response"]["GeoObjectCollection"][
                 "featureMember"][0]["GeoObject"]["metaDataProperty"][
                 "GeocoderMetaData"
@@ -64,9 +60,10 @@ def handle_location(message):
                              reply_markup=markup)
 
         except Exception:
+            mess = """Не могу определить адрес по этой локации/координатам.\n\
+            Отправь мне локацию или координаты (долгота, широта):"""
             bot.send_message(message.from_user.id,
-                             """Не могу определить адрес по этой локации/координатам.\n\
-                Отправь мне локацию или координаты (долгота, широта):""",
+                             mess,
                              reply_markup=markup)
     else:
         bot.send_message(message.from_user.id,
@@ -76,8 +73,8 @@ def handle_location(message):
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-#     print("get_text_messages")
-    if (message.text == '👋 Поздороваться') | (message.text == 'Вернуться назад'):
+    if ((message.text == '👋 Поздороваться') |
+        (message.text == 'Вернуться назад')):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('Как пользоваться ботом?')
         btn2 = types.KeyboardButton('Выбрать тип рекомендаций')
@@ -88,8 +85,9 @@ def get_text_messages(message):
                          reply_markup=markup)
 
     elif message.text == 'Как пользоваться ботом?':
+        mess = 'Воспользуйтесь командой /add_geo, чтобы добавить ваше местонахождение'
         bot.send_message(message.from_user.id,
-                         'Воспользуйтесь командой /add\_geo, чтобы добавить ваше местонахождение\.',
+                         mess,
                          parse_mode='MarkdownV2')
 
     elif message.text == 'Выбрать тип рекомендаций':
