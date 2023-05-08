@@ -73,8 +73,9 @@ def handle_location(message):
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    if ((message.text == '👋 Поздороваться') |
-        (message.text == 'Вернуться назад')):
+    if1 = '👋 Поздороваться'
+    if2 = 'Вернуться назад'
+    if (message.text == if1) | (message.text == if2):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('Как пользоваться ботом?')
         btn2 = types.KeyboardButton('Выбрать тип рекомендаций')
@@ -85,7 +86,8 @@ def get_text_messages(message):
                          reply_markup=markup)
 
     elif message.text == 'Как пользоваться ботом?':
-        mess = 'Воспользуйтесь командой /add_geo, чтобы добавить ваше местонахождение'
+        mess = """Воспользуйтесь командой /add_geo,
+        чтобы добавить ваше местонахождение"""
         bot.send_message(message.from_user.id,
                          mess,
                          parse_mode='MarkdownV2')
