@@ -2,7 +2,7 @@ from telebot import types
 import telebot
 
 from typing import Final
-import requests
+import core
 
 
 TOKEN: Final = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
@@ -36,30 +36,6 @@ def add_geo(message):
                      reply_markup=markup)
 
 
-def get_address_from_coords(coords):
-    lon, lat = coords[0], coords[1]
-    PARAMS = {
-        "apikey": "4e6e6cda-7f5c-417b-a6d0-90a5b6445055",
-        "format": "json",
-        "lang": "ru_RU",
-        "kind": "house",
-        "geocode": "%s, %s" % (lon, lat),
-    }
-
-    try:
-        r = requests.get(url="https://geocode-maps.yandex.ru/1.x/",
-                         params=PARAMS)
-        json_data = r.json()
-        mess = json_data["response"]["GeoObjectCollection"][
-            "featureMember"][0]["GeoObject"]["metaDataProperty"][
-            "GeocoderMetaData"
-        ]["AddressDetails"]["Country"]["AddressLine"]
-        return True, mess
-    except Exception:
-        mess = """Не могу определить адрес по этой локации/координатам"""
-        return False, mess
-
-
 @bot.message_handler(content_types=["location"])
 def handle_location(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -72,7 +48,7 @@ def handle_location(message):
         USER_DICT['lon'] = lon
         USER_DICT['lat'] = lat
 
-        flag, mess = get_address_from_coords((lon, lat))
+        flag, mess = core.get_address_from_coords((lon, lat))
 
         if flag:
             bot.send_message(message.from_user.id,
@@ -163,7 +139,7 @@ def get_text_messages(message):
                 btn2 = types.KeyboardButton(text="Нет")
                 markup.add(btn1, btn2)
 
-                flag, mess = get_address_from_coords(address)
+                flag, mess = core.get_address_from_coords(address)
                 print('else:', flag, mess)
 
                 if flag:
