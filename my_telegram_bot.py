@@ -125,9 +125,27 @@ def get_text_messages(message):
                          parse_mode='Markdown')
 
     elif message.text == "Посмотреть варианты":
-        bot.send_message(message.from_user.id,
-                         "Тут будут крутые рекомендации",
-                         parse_mode='Markdown')
+        if 'lon' not in USER_DICT or 'lat' not in USER_DICT:
+            bot.send_message(message.from_user.id,
+                            'Мне не понятны твои координаты',
+                            parse_mode='Markdown')
+        else:
+            places = core.get_places('PlacesDatabase/food_places.csv')
+            lon, lat = USER_DICT['lon'], USER_DICT['lat']
+            nearest_places = core.get_nearest(places, (lon, lat), 5)
+            
+            bot.send_message(message.from_user.id,
+                            'Рекомендации готовы!',
+                            parse_mode='Markdown')
+            
+            for i, place in enumerate(nearest_places):
+                p, d = place
+                d = core.dist_to_str(d)
+                bot.send_message(message.from_user.id,
+                                f'#{i+1}: {p.get_name()},\
+                                адрес: {p.get_address()}\
+                                расстояние от Вас: {d}',
+                                parse_mode='Markdown')
 
     else:
         try:
