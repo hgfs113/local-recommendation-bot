@@ -37,12 +37,13 @@ def add_geo(message):
 
 
 def get_address_from_coords(coords):
+    lon, lat = coords[0], coords[1]
     PARAMS = {
         "apikey": "4e6e6cda-7f5c-417b-a6d0-90a5b6445055",
         "format": "json",
         "lang": "ru_RU",
         "kind": "house",
-        "geocode": "%s, %s" % (coords[0], coords[1]),
+        "geocode": "%s, %s" % (lon, lat),
     }
 
     try:
@@ -55,8 +56,7 @@ def get_address_from_coords(coords):
         ]["AddressDetails"]["Country"]["AddressLine"]
         return True, mess
     except Exception:
-        mess = """Не могу определить адрес по этой локации/координатам.\n\
-        Отправь мне локацию или координаты (долгота, широта):"""
+        mess = """Не могу определить адрес по этой локации/координатам"""
         return False, mess
 
 
@@ -68,9 +68,11 @@ def handle_location(message):
         btn2 = types.KeyboardButton(text="Нет")
         markup.add(btn1, btn2)
 
-        flag, mess = get_address_from_coords(
-            (message.location.longitude,
-             message.location.latitude))
+        lon, lat = message.location.longitude, message.location.latitude
+        USER_DICT['lon'] = lon
+        USER_DICT['lat'] = lat
+
+        flag, mess = get_address_from_coords((lon, lat))
 
         if flag:
             bot.send_message(message.from_user.id,
@@ -162,6 +164,7 @@ def get_text_messages(message):
                 markup.add(btn1, btn2)
 
                 flag, mess = get_address_from_coords(address)
+                print('else:', flag, mess)
 
                 if flag:
                     bot.send_message(message.from_user.id,
