@@ -15,7 +15,6 @@ bot = telebot.TeleBot(token=TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    print('start')
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("👋 Поздороваться")
     markup.add(btn1)
@@ -26,7 +25,6 @@ def start(message):
 
 @bot.message_handler(commands=['add_geo'])
 def add_geo(message):
-    print('add_geo')
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton(text="Отправить местоположение",
                                 request_location=True)
@@ -39,7 +37,6 @@ def add_geo(message):
 
 
 def get_address_from_coords(coords):
-    print('get_address_from_coords')
     PARAMS = {
         "apikey": "4e6e6cda-7f5c-417b-a6d0-90a5b6445055",
         "format": "json",
@@ -65,7 +62,6 @@ def get_address_from_coords(coords):
 
 @bot.message_handler(content_types=["location"])
 def handle_location(message):
-    print('handle_location')
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     if message.location is not None:
         btn1 = types.KeyboardButton(text="Да")
@@ -93,7 +89,6 @@ def handle_location(message):
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    print('get_text_messages')
     if1 = '👋 Поздороваться'
     if2 = 'Вернуться назад'
     if (message.text == if1) | (message.text == if2):
