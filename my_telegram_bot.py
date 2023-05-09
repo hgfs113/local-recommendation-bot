@@ -2,7 +2,7 @@ from telebot import types
 import telebot
 
 from typing import Final
-import requests
+import core
 
 
 TOKEN: Final = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
@@ -36,30 +36,6 @@ def add_geo(message):
                      reply_markup=markup)
 
 
-def get_address_from_coords(coords):
-    PARAMS = {
-        "apikey": "4e6e6cda-7f5c-417b-a6d0-90a5b6445055",
-        "format": "json",
-        "lang": "ru_RU",
-        "kind": "house",
-        "geocode": "%s, %s" % (coords[0], coords[1]),
-    }
-
-    try:
-        r = requests.get(url="https://geocode-maps.yandex.ru/1.x/",
-                         params=PARAMS)
-        json_data = r.json()
-        mess = json_data["response"]["GeoObjectCollection"][
-            "featureMember"][0]["GeoObject"]["metaDataProperty"][
-            "GeocoderMetaData"
-        ]["AddressDetails"]["Country"]["AddressLine"]
-        return True, mess
-    except Exception:
-        mess = """Не могу определить адрес по этой локации/координатам.\n\
-        Отправь мне локацию или координаты (долгота, широта):"""
-        return False, mess
-
-
 @bot.message_handler(content_types=["location"])
 def handle_location(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -68,9 +44,11 @@ def handle_location(message):
         btn2 = types.KeyboardButton(text="Нет")
         markup.add(btn1, btn2)
 
-        flag, mess = get_address_from_coords(
-            (message.location.longitude,
-             message.location.latitude))
+        lon, lat = message.location.longitude, message.location.latitude
+        USER_DICT['lon'] = lon
+        USER_DICT['lat'] = lat
+
+        flag, mess = core.get_address_from_coords((lon, lat))
 
         if flag:
             bot.send_message(message.from_user.id,
@@ -147,9 +125,27 @@ def get_text_messages(message):
                          parse_mode='Markdown')
 
     elif message.text == "Посмотреть варианты":
-        bot.send_message(message.from_user.id,
-                         "Тут будут крутые рекомендации",
-                         parse_mode='Markdown')
+        if 'lon' not in USER_DICT or 'lat' not in USER_DICT:
+            bot.send_message(message.from_user.id,
+                             'Мне не понятны твои координаты',
+                             parse_mode='Markdown')
+        else:
+            places = core.get_places('PlacesDatabase/food_places.csv')
+            lon, lat = USER_DICT['lon'], USER_DICT['lat']
+            nearest_places = core.get_nearest(places, (lon, lat), 5)
+
+            bot.send_message(message.from_user.id,
+                             'Рекомендации готовы!',
+                             parse_mode='Markdown')
+
+            for i, place in enumerate(nearest_places):
+                p, d = place
+                d = core.dist_to_str(d)
+                bot.send_message(message.from_user.id,
+                                 f'#{i+1}: {p.get_name()},\
+                                 адрес: {p.get_address()}\
+                                 расстояние от Вас: {d}',
+                                 parse_mode='Markdown')
 
     else:
         try:
@@ -161,7 +157,8 @@ def get_text_messages(message):
                 btn2 = types.KeyboardButton(text="Нет")
                 markup.add(btn1, btn2)
 
-                flag, mess = get_address_from_coords(address)
+                flag, mess = core.get_address_from_coords(address)
+                print('else:', flag, mess)
 
                 if flag:
                     bot.send_message(message.from_user.id,
