@@ -107,7 +107,8 @@ def get_text_messages(message):
                          reply_markup=markup)
 
     elif message.text == 'Как пользоваться ботом?':
-        mess = """Воспользуйтесь командой /add\_geo, чтобы добавить ваше местонахождение"""
+        mess = rf"""Воспользуйтесь командой /add\_geo,
+        чтобы добавить ваше местонахождение"""
         bot.send_message(message.from_user.id,
                          mess,
                          parse_mode='MarkdownV2')
