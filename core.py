@@ -9,16 +9,16 @@ class PlaceEntry:
         self.address = address
         self.lon = lon
         self.lat = lat
-    
+
     def get_name(self):
         return self.name
-    
+
     def get_address(self):
         return self.address
-    
+
     def get_coords(self):
         return (self.lon, self.lat)
-    
+
     def __repr__(self):
         return f'{self.name}, {self.address}. Coords: ({self.lon}, {self.lat})'
 
@@ -92,7 +92,7 @@ def get_nearest(places, coords, N):
         p_lon, p_lat = place.get_coords()
         dist = distance_haversine((lon, lat), (p_lon, p_lat))
         place2dist[place] = dist
-    
+
     return sorted(place2dist.items(), key=lambda item: item[1])[:N]
 
 
