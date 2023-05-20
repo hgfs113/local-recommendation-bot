@@ -3,7 +3,7 @@ import pandas as pd
 from math import radians, cos, sin, asin, sqrt
 
 
-class PlaceEntry:
+class Item:
     def __init__(self, name, address, lon, lat):
         self.name = name
         self.address = address
@@ -67,17 +67,17 @@ def distance_haversine(p1, p2):
     return d
 
 
-def get_places(path):
+def get_food_places(path):
     df_food = pd.read_csv(path)
     places = []
     for row in df_food.itertuples():
         lon, lat = row.Longitude_WGS84_en, row.Latitude_WGS84_en
         if validate_point((lon, lat)):
-            entry = PlaceEntry(
+            item = Item(
                 row.Name_en, row.Address_en,
                 lon, lat
             )
-            places.append(entry)
+            places.append(item)
     return places
 
 
@@ -89,7 +89,6 @@ def get_nearest(USER_DICT, places, coords, N):
     for place in places:
         place_hash = place.get_hash()
         if place_hash in recommend_history:
-            print(f'duplicate: {place}')
             continue
         p_lon, p_lat = place.get_coords()
         dist = distance_haversine((lon, lat), (p_lon, p_lat))
