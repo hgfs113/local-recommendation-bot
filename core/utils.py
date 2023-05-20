@@ -61,7 +61,7 @@ def distance_haversine(p1, p2):
     dlon = lon2 - lon1
     dlat = lat2 - lat1
 
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
     c = 2 * asin(sqrt(a))
     d = R * c
     return d
@@ -95,12 +95,12 @@ def get_nearest(USER_DICT, places, coords, N):
         dist = distance_haversine((lon, lat), (p_lon, p_lat))
         place2dist[place] = dist
 
-    return sorted(place2dist.items(), key=lambda item: item[1])[:N]
+    return sorted(place2dist.items(), key=lambda item: item[1])[: N]
 
 
 def dist_to_str(dist):
     km = int(dist)
-    m = int((dist - km)*1000)
+    m = int((dist - km) * 1000)
     if km == 0:
         return f'{m} метров'
     elif m == 0:
