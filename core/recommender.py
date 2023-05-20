@@ -4,6 +4,7 @@ from core import utils
 
 
 class Recommender(ABC):
+
     """
     Абстрактный класс рекомендера с единой для всех вертикалей логикой.
 
