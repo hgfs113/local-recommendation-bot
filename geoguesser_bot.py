@@ -181,7 +181,9 @@ def get_text_messages(message):
 
 
 def write_recommendations(message):
-    recommended_places = food_recomender.recommend(USER_DICT)
+    recommended_places = food_recomender.recommend(USER_DICT,
+                                                   recommend_limit=20,
+                                                   blender_limit=5)
     for i, place in enumerate(recommended_places):
         p, d = place
         d = utils.dist_to_str(d)
