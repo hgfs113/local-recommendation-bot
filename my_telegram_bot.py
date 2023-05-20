@@ -97,7 +97,8 @@ def get_text_messages(message):
                      "Нажми на кнопку и передай мне свое местоположение",
                      reply_markup=markup)
 
-    elif message.text == 'Отправить местоположение':
+    # FIXME replace 'Да' by another logic
+    elif message.text in ['Отправить местоположение', 'Да']:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('Рестораны')
         btn2 = types.KeyboardButton('Парки')
@@ -144,21 +145,10 @@ def get_text_messages(message):
                              'Я не знаю, где ты находишься',
                              parse_mode='Markdown')
         else:
-            nearest_places = recommender.recommend(USER_DICT)
-            for i, place in enumerate(nearest_places):
-                p, d = place
-                d = utils.dist_to_str(d)
-                bot.send_message(message.from_user.id,
-                                 f'#{i+1}: {p.get_name()},\
-                                 адрес: {p.get_address()}\
-                                 расстояние от Вас: {d}',
-                                 parse_mode='Markdown')
-            bot.send_message(message.from_user.id,
-                             'Ещё варианты',
-                             parse_mode='Markdown')
-            
+            write_recommendations(message)
+        
     elif message.text == "Ещё варианты":
-        print('Ещё варианты... TODO')
+        write_recommendations(message)
 
     else:
         try:
@@ -185,6 +175,22 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id,
                              'Я не понимаю твою команду :(',
                              parse_mode='Markdown')
+
+
+def write_recommendations(message):
+    recommender.before_recommend(USER_DICT)
+    nearest_places = recommender.recommend(USER_DICT)
+    for i, place in enumerate(nearest_places):
+        p, d = place
+        d = utils.dist_to_str(d)
+        bot.send_message(message.from_user.id,
+                            f'#{i+1}: {p.name},\
+                            адрес: {p.address}\
+                            расстояние от Вас: {d}',
+                            parse_mode='Markdown')
+    bot.send_message(message.from_user.id,
+                        'Ещё варианты',
+                        parse_mode='Markdown')
 
 
 bot.polling(none_stop=True, interval=0)

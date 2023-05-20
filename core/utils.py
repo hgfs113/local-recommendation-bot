@@ -10,11 +10,8 @@ class PlaceEntry:
         self.lon = lon
         self.lat = lat
 
-    def get_name(self):
-        return self.name
-
-    def get_address(self):
-        return self.address
+    def get_hash(self):
+        return hash(self.name + self.address)
 
     def get_coords(self):
         return (self.lon, self.lat)
@@ -84,11 +81,16 @@ def get_places(path):
     return places
 
 
-def get_nearest(places, coords, N):
+def get_nearest(USER_DICT, places, coords, N):
+    recommend_history = USER_DICT['recommend_history']
     place2dist = {}
 
     lon, lat = coords
     for place in places:
+        place_hash = place.get_hash()
+        if place_hash in recommend_history:
+            print(f'duplicate: {place}')
+            continue
         p_lon, p_lat = place.get_coords()
         dist = distance_haversine((lon, lat), (p_lon, p_lat))
         place2dist[place] = dist
