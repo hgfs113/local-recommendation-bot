@@ -4,6 +4,14 @@ from math import radians, cos, sin, asin, sqrt
 
 
 class Item:
+    """
+    Элемент рекомендации.
+
+    Это может быть ресторан, парк или театр.
+    Содержит название, адрес и координаты.
+    Умеет считать хэш.
+    """
+
     def __init__(self, name, address, lon, lat):
         self.name = name
         self.address = address
