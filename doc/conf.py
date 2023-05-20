@@ -7,19 +7,18 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'local-recomendation-bot'
-copyright = '2023, EvgSumina, hgfs113, Bicdan, temnoosh'
-author = 'EvgSumina, hgfs113, Bicdan, temnoosh'
-release = '0.0.1'
+copyright = '2023, dmitry-np'
+author = 'dmitry-np'
+release = '0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc']
+extensions = []
 
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-language = 'ru'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
