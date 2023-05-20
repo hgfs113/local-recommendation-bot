@@ -8,11 +8,9 @@ class Recommender(ABC):
     def get_candidates(self):
         pass
 
-
     @abstractmethod
     def get_recommended_places(self, USER_DICT, places, coords, limit):
         pass
-
 
     def before_recommend(self, USER_DICT):
         """
@@ -21,7 +19,6 @@ class Recommender(ABC):
         """
         if 'recommend_history' not in USER_DICT:
             USER_DICT['recommend_history'] = set()
-
 
     def stream_blender(self, USER_DICT, recommended_items, blender_limit=5):
         """
@@ -36,9 +33,8 @@ class Recommender(ABC):
         for idx in random_idxs:
             stream_items.append(recommended_items[idx])
 
-        stream_items = sorted(stream_items, key = lambda item: item[1])
+        stream_items = sorted(stream_items, key=lambda item: item[1])
         return stream_items
-
 
     def recommend(self, USER_DICT, recommend_limit=20, blender_limit=5):
         """
@@ -58,7 +54,9 @@ class Recommender(ABC):
             item_hash = item.get_hash()
             USER_DICT['recommend_history'].add(item_hash)
 
-        stream_items = self.stream_blender(USER_DICT, recommended_items, blender_limit)
+        stream_items = self.stream_blender(USER_DICT,
+                                           recommended_items,
+                                           blender_limit)
         return stream_items
 
 
