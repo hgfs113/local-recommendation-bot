@@ -20,5 +20,5 @@ jobs:
         pip install pydocstyle
     - name: Run pydocstyle check
       run: |
-        pydocstyle --ignore=D10 .
+        pydocstyle --ignore=D10,D203,D211,D212 .
 
