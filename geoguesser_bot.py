@@ -6,6 +6,7 @@ from core import recommender, utils
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
 USER_DICT = dict()
+food_recomender = recommender.FoodRecommender()
 
 
 bot = TeleBot(token=TOKEN)
@@ -147,10 +148,10 @@ def get_text_messages(message):
                              'Я не знаю, где ты находишься',
                              parse_mode='Markdown')
         else:
-            write_recommendations(message)
-
-    elif message.text == 'Ещё варианты':
-        write_recommendations(message)
+            recommended_items = food_recomender.recommend(USER_DICT,
+                                                          recommend_limit=20,
+                                                          blender_limit=5)
+            write_recommendations(recommended_items, message)
 
     else:
         try:
@@ -179,10 +180,8 @@ def get_text_messages(message):
                              parse_mode='Markdown')
 
 
-def write_recommendations(message):
-    recommender.before_recommend(USER_DICT)
-    nearest_places = recommender.recommend(USER_DICT)
-    for i, place in enumerate(nearest_places):
+def write_recommendations(recommended_items, message):
+    for i, place in enumerate(recommended_items):
         p, d = place
         d = utils.dist_to_str(d)
         bot.send_message(message.from_user.id,
