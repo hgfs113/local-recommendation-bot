@@ -5,6 +5,7 @@ def before_recommend(USER_DICT):
     if 'recommend_history' not in USER_DICT:
         USER_DICT['recommend_history'] = set()
 
+
 def recommend(USER_DICT):
     places = utils.get_places('PlacesDatabase/food_places.csv')
     lon, lat = USER_DICT['lon'], USER_DICT['lat']

@@ -85,7 +85,7 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id,
                          mess,
                          parse_mode='MarkdownV2')
-        
+
     elif message.text == 'СТАРТ':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton(text="Отправить местоположение",
@@ -94,8 +94,8 @@ def get_text_messages(message):
         btn3 = types.KeyboardButton('Вернуться назад')
         markup.add(btn1, btn2, btn3)
         bot.send_message(message.from_user.id,
-                     "Нажми на кнопку и передай мне свое местоположение",
-                     reply_markup=markup)
+                         "Нажми на кнопку и передай мне свое местоположение",
+                         reply_markup=markup)
 
     # FIXME replace 'Да' by another logic
     elif message.text in ['Отправить местоположение', 'Да']:
@@ -110,7 +110,7 @@ def get_text_messages(message):
                          'Выбери, какие рекомендации ты хочешь получить',
                          reply_markup=markup,
                          parse_mode='Markdown')
-        
+
     elif message.text.startswith('Введите адрес в формате'):
         print('Введите адрес в формате... TODO')
 
@@ -146,7 +146,7 @@ def get_text_messages(message):
                              parse_mode='Markdown')
         else:
             write_recommendations(message)
-        
+
     elif message.text == "Ещё варианты":
         write_recommendations(message)
 
@@ -184,13 +184,13 @@ def write_recommendations(message):
         p, d = place
         d = utils.dist_to_str(d)
         bot.send_message(message.from_user.id,
-                            f'#{i+1}: {p.name},\
-                            адрес: {p.address}\
-                            расстояние от Вас: {d}',
-                            parse_mode='Markdown')
+                         f'#{i+1}: {p.name},\
+                         адрес: {p.address}\
+                         расстояние от Вас: {d}',
+                         parse_mode='Markdown')
     bot.send_message(message.from_user.id,
-                        'Ещё варианты',
-                        parse_mode='Markdown')
+                     'Ещё варианты',
+                     parse_mode='Markdown')
 
 
 bot.polling(none_stop=True, interval=0)
