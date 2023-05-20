@@ -1,16 +1,14 @@
-from telebot import types
-import telebot
+from telebot import TeleBot, types
 
-from typing import Final
-from core import utils, recommender
+from core import recommender, utils
 
 
-TOKEN: Final = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
-BOT_USERNAME: Final = '@local_recommendation_bot'
+TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
+BOT_USERNAME = '@local_recommendation_bot'
 USER_DICT = dict()
 
 
-bot = telebot.TeleBot(token=TOKEN)
+bot = TeleBot(token=TOKEN)
 
 
 @bot.message_handler(commands=['start'])
