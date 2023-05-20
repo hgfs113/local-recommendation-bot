@@ -1,11 +1,10 @@
 import requests
-import pandas as pd
 from math import radians, cos, sin, asin, sqrt
 
 
 class Item:
     """
-    Элемент рекомендации.
+    Контейнер кандидата для рекомендации.
 
     Это может быть ресторан, парк или театр.
     Содержит название, адрес и координаты.
@@ -26,6 +25,19 @@ class Item:
 
     def __repr__(self):
         return f'{self.name}, {self.address}. Coords: ({self.lon}, {self.lat})'
+
+
+class RecommendItem(Item):
+    """
+    Элемент рекомендации.
+
+    Наследуется от Item, содержит user-item информацию,
+    такую как расстояние и пр.
+    """
+
+    def __init__(self, name, address, lon, lat, dist):
+        self.dist = dist
+        Item.__init__(name, address, lon, lat)
 
 
 def get_address_from_coords(coords):
@@ -73,20 +85,6 @@ def distance_haversine(p1, p2):
     c = 2 * asin(sqrt(a))
     d = R * c
     return d
-
-
-def get_food_places(path):
-    df_food = pd.read_csv(path)
-    places = []
-    for row in df_food.itertuples():
-        lon, lat = row.Longitude_WGS84_en, row.Latitude_WGS84_en
-        if validate_point((lon, lat)):
-            item = Item(
-                row.Name_en, row.Address_en,
-                lon, lat
-            )
-            places.append(item)
-    return places
 
 
 def get_nearest(USER_DICT, places, coords, N):
