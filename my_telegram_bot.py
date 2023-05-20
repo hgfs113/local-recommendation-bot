@@ -2,7 +2,7 @@ from telebot import types
 import telebot
 
 from typing import Final
-import core
+from core import utils, recommender
 
 
 TOKEN: Final = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
@@ -48,7 +48,7 @@ def handle_location(message):
         USER_DICT['lon'] = lon
         USER_DICT['lat'] = lat
 
-        flag, mess = core.get_address_from_coords((lon, lat))
+        flag, mess = utils.get_address_from_coords((lon, lat))
 
         if flag:
             bot.send_message(message.from_user.id,
@@ -72,7 +72,7 @@ def get_text_messages(message):
     if (message.text == if1) | (message.text == if2):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('Как пользоваться ботом?')
-        btn2 = types.KeyboardButton('Выбрать тип рекомендаций')
+        btn2 = types.KeyboardButton('СТАРТ')
         btn3 = types.KeyboardButton('Наш репозиторий')
         markup.add(btn1, btn2, btn3)
         bot.send_message(message.from_user.id,
@@ -86,7 +86,19 @@ def get_text_messages(message):
                          mess,
                          parse_mode='MarkdownV2')
 
-    elif message.text == 'Выбрать тип рекомендаций':
+    elif message.text == 'СТАРТ':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        btn1 = types.KeyboardButton(text="Отправить местоположение",
+                                    request_location=True)
+        btn2 = types.KeyboardButton(text="Указать адрес")
+        btn3 = types.KeyboardButton('Вернуться назад')
+        markup.add(btn1, btn2, btn3)
+        bot.send_message(message.from_user.id,
+                         "Нажми на кнопку и передай мне свое местоположение",
+                         reply_markup=markup)
+
+    # FIXME replace 'Да' by another logic
+    elif message.text in ['Отправить местоположение', 'Да']:
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton('Рестораны')
         btn2 = types.KeyboardButton('Парки')
@@ -95,9 +107,12 @@ def get_text_messages(message):
         btn5 = types.KeyboardButton('Всё')
         markup.add(btn1, btn2, btn3, btn4, btn5)
         bot.send_message(message.from_user.id,
-                         'Выбери, какие рекомендации ты хочешь получать.',
+                         'Выбери, какие рекомендации ты хочешь получить',
                          reply_markup=markup,
                          parse_mode='Markdown')
+
+    elif message.text.startswith('Введите адрес в формате'):
+        print('Введите адрес в формате... TODO')
 
     elif message.text == 'Наш репозиторий':
         mess = 'Детали нашего проекта вы можете посмотреть по '
@@ -127,25 +142,13 @@ def get_text_messages(message):
     elif message.text == "Посмотреть варианты":
         if 'lon' not in USER_DICT or 'lat' not in USER_DICT:
             bot.send_message(message.from_user.id,
-                             'Мне не понятны твои координаты',
+                             'Я не знаю, где ты находишься',
                              parse_mode='Markdown')
         else:
-            places = core.get_places('PlacesDatabase/food_places.csv')
-            lon, lat = USER_DICT['lon'], USER_DICT['lat']
-            nearest_places = core.get_nearest(places, (lon, lat), 5)
+            write_recommendations(message)
 
-            bot.send_message(message.from_user.id,
-                             'Рекомендации готовы!',
-                             parse_mode='Markdown')
-
-            for i, place in enumerate(nearest_places):
-                p, d = place
-                d = core.dist_to_str(d)
-                bot.send_message(message.from_user.id,
-                                 f'#{i+1}: {p.get_name()},\
-                                 адрес: {p.get_address()}\
-                                 расстояние от Вас: {d}',
-                                 parse_mode='Markdown')
+    elif message.text == "Ещё варианты":
+        write_recommendations(message)
 
     else:
         try:
@@ -157,7 +160,7 @@ def get_text_messages(message):
                 btn2 = types.KeyboardButton(text="Нет")
                 markup.add(btn1, btn2)
 
-                flag, mess = core.get_address_from_coords(address)
+                flag, mess = utils.get_address_from_coords(address)
                 print('else:', flag, mess)
 
                 if flag:
@@ -172,6 +175,22 @@ def get_text_messages(message):
             bot.send_message(message.from_user.id,
                              'Я не понимаю твою команду :(',
                              parse_mode='Markdown')
+
+
+def write_recommendations(message):
+    recommender.before_recommend(USER_DICT)
+    nearest_places = recommender.recommend(USER_DICT)
+    for i, place in enumerate(nearest_places):
+        p, d = place
+        d = utils.dist_to_str(d)
+        bot.send_message(message.from_user.id,
+                         f'#{i+1}: {p.name},\
+                         адрес: {p.address}\
+                         расстояние от Вас: {d}',
+                         parse_mode='Markdown')
+    bot.send_message(message.from_user.id,
+                     'Ещё варианты',
+                     parse_mode='Markdown')
 
 
 bot.polling(none_stop=True, interval=0)
