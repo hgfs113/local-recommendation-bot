@@ -6,6 +6,7 @@ from core import recommender, utils
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
 USER_DICT = dict()
+food_recomender = recommender.FoodRecommender()
 
 
 bot = TeleBot(token=TOKEN)
@@ -180,9 +181,8 @@ def get_text_messages(message):
 
 
 def write_recommendations(message):
-    recommender.before_recommend(USER_DICT)
-    nearest_places = recommender.recommend(USER_DICT)
-    for i, place in enumerate(nearest_places):
+    recommended_places = food_recomender.recommend(USER_DICT)
+    for i, place in enumerate(recommended_places):
         p, d = place
         d = utils.dist_to_str(d)
         bot.send_message(message.from_user.id,
