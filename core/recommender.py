@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
-from core import utils
+import utils
 
 
 class Recommender(ABC):
@@ -52,7 +52,11 @@ class Recommender(ABC):
         N карточек рекомендаций
         """
         idxs = np.arange(len(recommended_items))
-        random_idxs = np.random.choice(idxs, size=blender_limit, replace=False)
+        random_idxs = np.random.choice(
+                idxs,
+                size=min(len(recommended_items), blender_limit),
+                replace=False
+            )
 
         stream_items = []
         for idx in random_idxs:

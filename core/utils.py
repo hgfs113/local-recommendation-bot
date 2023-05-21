@@ -37,7 +37,7 @@ class RecommendItem(Item):
 
     def __init__(self, name, address, lon, lat, dist):
         self.dist = dist
-        Item.__init__(name, address, lon, lat)
+        super().__init__(name, address, lon, lat)
 
 
 def get_address_from_coords(coords):
