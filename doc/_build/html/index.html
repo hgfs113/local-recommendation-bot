@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Документация проекта local-recomendation-bot! &#8212; документация local-recomendation-bot 0</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="local-recomendation-bot">
+<h1>Документация проекта local-recomendation-bot!<a class="headerlink" href="#local-recomendation-bot" title="Permalink to this heading">¶</a></h1>
+<p>local-recomendation-bot это бот для телеграмма, который рекомендует различные категории досуга на основании вашего местоположения и предыдущих выборов.</p>
+<p><strong>Возможности</strong></p>
+<ul class="simple">
+<li><p>Получение геолокации встроенным способом через телеграмм или через текстовый адресс.</p></li>
+<li><p>Рекомендации по базе данных на основании расстояния</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+<section id="core-recommender-recommender">
+<h2>core.recommender.Recommender<a class="headerlink" href="#core-recommender-recommender" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.recommender.Recommender">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.recommender.</span></span><span class="sig-name descname"><span class="pre">Recommender</span></span><a class="headerlink" href="#core.recommender.Recommender" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Абстрактный класс рекомендера с единой для всех вертикалей логикой.</p>
+<p>В наследнике требуется переопределить некоторые абстрактные функции,
+играющие ключевую роль в рекомендациях.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.before_recommend">
+<span class="sig-name descname"><span class="pre">before_recommend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USER_DICT</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.before_recommend" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Подготовка к вызову рекомендера.</p>
+<p>Метод для подготовки данных перед вызовом рекомендера
+для его корректной работы.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.get_candidates">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_candidates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.get_candidates" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Возвращает список кандидатов.</p>
+<p>Кандидаты - все возможные айтемы,
+которые могут быть порекомендованы.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.get_recommended_items">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_recommended_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USER_DICT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.get_recommended_items" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Лёгкий рекомендер.</p>
+<p>Возвращает список из limit рекомендательных карточек,
+которые затем будут обработаны в stream_blender.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.recommend">
+<span class="sig-name descname"><span class="pre">recommend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USER_DICT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recommend_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blender_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.recommend" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Основная функция рекомендера.</p>
+<p>Рекомендер возвращает список из limit карточек рекомендаций,
+которые затем будут обработаны в большом блендере</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.stream_blender">
+<span class="sig-name descname"><span class="pre">stream_blender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USER_DICT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recommended_items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blender_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.stream_blender" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Возвращает финальную пачку рекомендаций с вертикали.</p>
+<p>Получает карточки recommended_items, перемешивает их
+согласно определённым правилам и возвращает финальные
+N карточек рекомендаций</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Алфавитный указатель</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Состав модуля</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Поиск</span></a></p></li>
+</ul>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">local-recomendation-bot</a></h1>
+
+
+
+
+
+
+
+
+<h3>Навигация</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Быстрый поиск</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Искать" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, EvgMoiseev.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
