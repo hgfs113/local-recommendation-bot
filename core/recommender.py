@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
-from .utils import validate_point, Item, get_nearest, RecommendItem
+from .utils import validate_point, get_nearest, Item, RecommendItem
 
 
 class Recommender(ABC):
@@ -43,7 +43,8 @@ class Recommender(ABC):
         if 'recommend_history' not in USER_DICT:
             USER_DICT['recommend_history'] = set()
 
-    def stream_blender(self, USER_DICT, recommended_items, blender_limit=5):
+    def stream_blender(self, USER_DICT, recommended_items,
+                       blender_limit=5, temperature=5):
         """
         Возвращает финальную пачку рекомендаций с вертикали.
 
@@ -51,15 +52,45 @@ class Recommender(ABC):
         согласно определённым правилам и возвращает финальные
         N карточек рекомендаций
         """
-        idxs = np.arange(len(recommended_items))
-        random_idxs = np.random.choice(
-                idxs,
-                size=min(len(recommended_items), blender_limit),
-                replace=False
-            )
+        if blender_limit > len(recommended_items):
+            blender_limit = len(recommended_items)
+
+        user_coords = np.array([[USER_DICT['lon'], USER_DICT['lat']]])
+        item_coords = []
+        for item in recommended_items:
+            item_coords.append([item.lon, item.lat])
+        item_coords = np.array(item_coords)
+
+        idx_set = set()
+        free_idx_set = set(range(item_coords.shape[0]))
+
+        d0 = distance_matrix(user_coords, item_coords)
+        d0_copy = d0.copy()
+        for _ in range(temperature):
+            nearest_idx = d0_copy.argmin()
+            d0_copy[:, nearest_idx] = -1
+        nearest_idx = d0_copy.argmin()
+        idx_set.add(nearest_idx)
+
+        while len(idx_set) < blender_limit:
+            idx = np.array(list(idx_set))
+            free_idx = np.array(list(free_idx_set))
+            d = distance_matrix(item_coords[idx], item_coords[free_idx])
+            d_copy = d.copy()
+            for _ in range(temperature):
+                i, j = np.unravel_index(d_copy.argmax(), d_copy.shape)
+                d_copy[i, j] = -1
+            i, j = np.unravel_index(d_copy.argmax(), d_copy.shape)
+            d[i, j] = -1
+            idx_set.add(i)
+            idx_set.add(j)
+            if i in free_idx_set:
+                free_idx_set.remove(i)
+            if j in free_idx_set:
+                free_idx_set.remove(j)
 
         stream_items = []
-        for idx in random_idxs:
+        for idx in idx_set:
             stream_items.append(recommended_items[idx])
 
         stream_items = sorted(stream_items, key=lambda item: item.dist)
@@ -102,11 +133,10 @@ class FoodRecommender(Recommender):
             lon, lat = row.Longitude_WGS84_en, row.Latitude_WGS84_en
             if validate_point((lon, lat)):
                 item = Item(
-                    row.Name_en,
-                    row.Address_en,
-                    lon,
-                    lat
-                )
+                     row.Name_en,
+                     row.Address_en,
+                     lon,
+                     lat)
                 candidates.append(item)
         return candidates
 
