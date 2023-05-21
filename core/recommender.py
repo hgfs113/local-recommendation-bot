@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
+from scipy.spatial import distance_matrix
 from .utils import validate_point, get_nearest, Item, RecommendItem
 
 
