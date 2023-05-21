@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
-import utils
+from .utils import validate_point, Item, get_nearest, RecommendItem
 
 
 class Recommender(ABC):
@@ -100,25 +100,29 @@ class FoodRecommender(Recommender):
         candidates = []
         for row in df_food.itertuples():
             lon, lat = row.Longitude_WGS84_en, row.Latitude_WGS84_en
-            if utils.validate_point((lon, lat)):
-                item = utils.Item(row.Name_en,
-                                  row.Address_en,
-                                  lon,
-                                  lat)
+            if validate_point((lon, lat)):
+                item = Item(
+                    row.Name_en,
+                    row.Address_en,
+                    lon,
+                    lat
+                )
                 candidates.append(item)
         return candidates
 
     def get_recommended_items(self, USER_DICT, places, coords, limit):
         """Возвращает limit ближайших ресторанов."""
-        items_with_dist = utils.get_nearest(USER_DICT, places, coords, limit)
+        items_with_dist = get_nearest(USER_DICT, places, coords, limit)
         recommended_items = []
 
         for (item, dist) in items_with_dist:
-            recommended_item = utils.RecommendItem(item.name,
-                                                   item.address,
-                                                   item.lon,
-                                                   item.lat,
-                                                   dist)
+            recommended_item = RecommendItem(
+                item.name,
+                item.address,
+                item.lon,
+                item.lat,
+                dist
+            )
             recommended_items.append(recommended_item)
 
         return recommended_items

@@ -7,7 +7,8 @@ class Item:
     Контейнер кандидата для рекомендации.
 
     Это может быть ресторан, парк или театр.
-    Содержит название, адрес и координаты.
+    Содержит название, адрес и координаты средний
+    накопленный рейтинг.
     Умеет считать хэш.
     """
 
@@ -17,11 +18,25 @@ class Item:
         self.lon = lon
         self.lat = lat
 
+        self.avg_rating = None
+        self.counts = 0
+
     def get_hash(self):
         return hash(self.name + self.address)
 
     def get_coords(self):
         return (self.lon, self.lat)
+
+    def get_rating(self):
+        if self.counts > 5:
+            return self.avg_rating
+        return None
+
+    def add_rating(self, rating):
+        self.avg_rating = (
+                self.counts * self.avg_rating + rating
+            ) / (self.counts + 1)
+        self.counts += 1
 
     def __repr__(self):
         return f'{self.name}, {self.address}. Coords: ({self.lon}, {self.lat})'

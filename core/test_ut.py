@@ -1,5 +1,5 @@
-from utils import get_nearest, Item, RecommendItem
-from recommender import FoodRecommender
+from .utils import get_nearest, Item, RecommendItem
+from .recommender import FoodRecommender
 
 
 # Тест на случай, когда все места уже были рекомендованы
