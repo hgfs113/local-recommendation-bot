@@ -182,15 +182,15 @@ def get_text_messages(message):
 
 def write_recommendations(recommended_items, message):
     for i, place in enumerate(recommended_items):
-        p, d = place
-        d = utils.dist_to_str(d)
+        d = utils.dist_to_str(place.dist)
         bot.send_message(message.from_user.id,
-                         f'#{i+1}: {p.name},\
-                         адрес: {p.address}\
-                         расстояние от Вас: {d}',
+                         f'#{i+1}: **{place.name}**\n'
+                         f'- адрес: {place.address}\n'
+                         f'- расстояние от Вас: {d}\n'
+                         f'- рейтинг: {place.get_rating() or "Не указан"}',
                          parse_mode='Markdown')
     bot.send_message(message.from_user.id,
-                     'Ещё варианты',
+                     'Ещё варианты?',
                      parse_mode='Markdown')
 
 
