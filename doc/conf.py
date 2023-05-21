@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, '../')
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -5,16 +8,16 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
+language = 'ru'
 project = 'local-recomendation-bot'
-copyright = '2023, dmitry-np'
-author = 'dmitry-np'
+copyright = '2023, EvgMoiseev'
+author = 'EvgSumina, hgfs113, Bicdan, temnoosh'
 release = '0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = ['sphinx.ext.autodoc']
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
