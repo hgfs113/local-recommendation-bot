@@ -1,16 +1,16 @@
-from .utils import get_nearest, Item, RecommendItem
+from .utils import get_nearest, ItemType, Item, RecommendItem
 from .recommender import FoodRecommender
 
 
 # Тест на случай, когда все места уже были рекомендованы
 def test_get_nearest_all_duplicate():
     places = [
-        Item('hash1', 'hash1', *(1, 1)),
-        Item('hash2', 'hash2', *(2, 2)),
-        Item('hash3', 'hash3', *(3, 3))
+        Item(ItemType.FOOD, 'hash1', 'hash1', *(1, 1)),
+        Item(ItemType.FOOD, 'hash2', 'hash2', *(2, 2)),
+        Item(ItemType.FOOD, 'hash3', 'hash3', *(3, 3))
     ]
     USER_INFO = {
-        'recommend_history': set(place.get_hash() for place in places)
+        'recommend_history': set(place.item_id for place in places)
     }
     coords = (0, 0)
     N = 2
@@ -24,11 +24,18 @@ def test_Recommender_stream_blender():
     USER_INFO = {'lon': 30.315868,
                  'lat': 59.939095,
                  'recommend_history': set()}
-    recommended_items = [RecommendItem(Item('hash1', 'hash1', 1, 1), dist=0.1),
-                         RecommendItem(Item('hash2', 'hash2', 2, 1), dist=0.2),
-                         RecommendItem(Item('hash3', 'hash3', 1, 2), dist=0.3),
-                         RecommendItem(Item('hash4', 'hash4', 2, 2), dist=0.4),
-                         RecommendItem(Item('hash5', 'hash5', 2, 3), dist=0.5)]
+    recommended_items = [
+        RecommendItem(Item(ItemType.FOOD, 'hash1', 'hash1', 1, 1),
+                      dist=0.1),
+        RecommendItem(Item(ItemType.FOOD, 'hash2', 'hash2', 2, 1),
+                      dist=0.2),
+        RecommendItem(Item(ItemType.FOOD, 'hash3', 'hash3', 1, 2),
+                      dist=0.3),
+        RecommendItem(Item(ItemType.FOOD, 'hash4', 'hash4', 2, 2),
+                      dist=0.4),
+        RecommendItem(Item(ItemType.FOOD, 'hash5', 'hash5', 2, 3),
+                      dist=0.5)
+    ]
 
     # Тестируется произвольный дочерний класс абстрактного Recommender
     recommender = FoodRecommender()

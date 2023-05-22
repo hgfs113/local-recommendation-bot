@@ -25,9 +25,9 @@ def gen_markup():
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     if call.message.id in REC_HIST[call.from_user.id]:
-        place_hash = REC_HIST[call.from_user.id][call.message.id]
+        place_id = REC_HIST[call.from_user.id][call.message.id]
         food_recomender.add_rating(
-                item_hash=place_hash,
+                item_id=place_id,
                 rating_good=(call.data == "cb_yes")
         )
         bot.answer_callback_query(call.id, "Answer recorded")
@@ -219,7 +219,7 @@ def write_recommendations(recommended_items, message):
                 f'- рейтинг: {place.get_rating() or "Не указан"}',
                 parse_mode='Markdown', reply_markup=gen_markup()
             )
-        REC_HIST[message.from_user.id][msg_sent.message_id] = place.get_hash()
+        REC_HIST[message.from_user.id][msg_sent.message_id] = place.item_id
 
     bot.send_message(message.from_user.id,
                      'Ещё варианты? 😎',
