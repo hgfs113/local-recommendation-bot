@@ -163,8 +163,6 @@ def get_text_messages(message):
                          parse_mode='Markdown')
 
     elif message.text in recommendation_types:
-        USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        USER_INFO[message.from_user.id] = message.text
         bot.send_message(message.from_user.id,
                          'Вы выбрали ' + message.text.lower(),
                          reply_markup=check_rec_markup,
