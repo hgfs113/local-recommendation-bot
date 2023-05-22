@@ -6,7 +6,7 @@ from collections import defaultdict
 
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
-USER_DICT = dict()
+USER_INFO_AGGREGATOR = dict()
 REC_HIST = defaultdict(dict)
 food_recomender = recommender.FoodRecommender()
 
@@ -38,6 +38,9 @@ def callback_query(call):
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    user_id = message.from_user.id
+    if user_id not in USER_INFO_AGGREGATOR:
+        USER_INFO_AGGREGATOR[user_id] = dict()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn = types.KeyboardButton('👋 Поздороваться')
     markup.add(btn)
@@ -67,9 +70,10 @@ def handle_location(message):
         btn2 = types.KeyboardButton(text='Нет ❌')
         markup.add(btn1, btn2)
 
+        USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
         lon, lat = message.location.longitude, message.location.latitude
-        USER_DICT['lon'] = lon
-        USER_DICT['lat'] = lat
+        USER_INFO['lon'] = lon
+        USER_INFO['lat'] = lat
 
         flag, mess = utils.get_address_from_coords((lon, lat))
 
@@ -162,20 +166,22 @@ def get_text_messages(message):
                          parse_mode='Markdown')
 
     elif message.text in recommendation_types:
-        USER_DICT[message.from_user.id] = message.text
+        USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
+        USER_INFO[message.from_user.id] = message.text
         bot.send_message(message.from_user.id,
                          'Вы выбрали ' + message.text.lower(),
                          reply_markup=check_rec_markup,
                          parse_mode='Markdown')
 
     elif message.text == 'Посмотреть варианты 🤔':
-        if 'lon' not in USER_DICT or 'lat' not in USER_DICT:
+        USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
+        if 'lon' not in USER_INFO or 'lat' not in USER_INFO:
             bot.send_message(message.from_user.id,
                              'Я не знаю, где ты находишься',
                              parse_mode='Markdown')
         else:
             recommended_items = food_recomender.recommend(
-                USER_DICT,
+                USER_INFO,
                 recommend_limit=20,
                 blender_limit=5)
             write_recommendations(recommended_items, message)
