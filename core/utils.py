@@ -131,7 +131,8 @@ def dist_to_str(dist):
 
 
 def stream_blender_diego(USER_DICT, recommended_items,
-                         blender_limit, temperature):
+                         blender_limit, temperature,
+                         max_iter=10000):
     user_coords = np.array([[USER_DICT['lon'], USER_DICT['lat']]])
     item_coords = []
     for item in recommended_items:
@@ -149,10 +150,13 @@ def stream_blender_diego(USER_DICT, recommended_items,
     nearest_idx = d0_copy.argmin()
     idx_set.add(nearest_idx)
 
+    d = distance_matrix(item_coords, item_coords)
+    cur_iter = 0
     while len(idx_set) < blender_limit:
-        idx = np.array(list(idx_set))
-        free_idx = np.array(list(free_idx_set))
-        d = distance_matrix(item_coords[idx], item_coords[free_idx])
+        #idx = np.array(list(idx_set))
+        #free_idx = np.array(list(free_idx_set))
+        #d = distance_matrix(item_coords[idx], item_coords[free_idx])
+        #print(d.shape, idx_set)
         d_copy = d.copy()
         for _ in range(temperature):
             i, j = np.unravel_index(d_copy.argmax(), d_copy.shape)
@@ -165,6 +169,10 @@ def stream_blender_diego(USER_DICT, recommended_items,
             free_idx_set.remove(i)
         if j in free_idx_set:
             free_idx_set.remove(j)
+        cur_iter += 1
+        if cur_iter > max_iter:
+            print('WARNING: stream blender got into an endless loop')
+            break
 
     stream_items = []
     for idx in idx_set:
