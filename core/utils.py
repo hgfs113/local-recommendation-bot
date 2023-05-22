@@ -1,30 +1,62 @@
 import requests
 import numpy as np
+from enum import Enum
 from scipy.spatial import distance_matrix
 from math import radians, cos, sin, asin, sqrt
 
 
+class ItemType(Enum):
+
+    """
+    Перечисление типов рекомендации.
+
+    Является частью ключа, который определяет элемент рекомендации.
+    """
+
+    FOOD = 1
+    SHOP = 2
+
+
+class ItemId:
+
+    """
+    Уникальная пара (type, id).
+
+    Однозначно определяет элемент рекомендации
+    и является ключом к словарю кандидатов.
+    """
+
+    def __init__(self, type, id):
+        self.type = type
+        self.id = id
+
+    def __hash__(self):
+        return self.type * 4243 + self.id * 239017
+
+    def __eq__(self, other):
+        return (self.type == other.type) and (self.id == other.id)
+
+
 class Item:
+
     """
     Контейнер кандидата для рекомендации.
 
     Это может быть ресторан, парк или театр.
     Содержит название, адрес и координаты средний
     накопленный рейтинг.
-    Умеет считать хэш.
     """
 
-    def __init__(self, name, address, lon, lat):
+    def __init__(self, type, name, address, lon, lat):
+        self.type = type
         self.name = name
         self.address = address
         self.lon = lon
         self.lat = lat
 
+        self.item_id = ItemId(self.type.value, hash(name + address))
         self.avg_rating = None
         self.counts = 0
-
-    def get_hash(self):
-        return hash(self.name + self.address)
 
     def get_coords(self):
         return (self.lon, self.lat)
@@ -56,7 +88,12 @@ class RecommendItem(Item):
 
     def __init__(self, item, dist):
         self.dist = dist
-        super().__init__(item.name, item.address, item.lon, item.lat)
+        super().__init__(
+            item.type,
+            item.name,
+            item.address,
+            item.lon,
+            item.lat)
 
 
 def get_address_from_coords(coords):
@@ -112,8 +149,8 @@ def get_nearest(USER_INFO, places, coords, N):
 
     lon, lat = coords
     for place in places:
-        place_hash = place.get_hash()
-        if place_hash in recommend_history:
+        place_id = place.item_id
+        if place_id in recommend_history:
             continue
         p_lon, p_lat = place.get_coords()
         dist = distance_haversine((lon, lat), (p_lon, p_lat))
