@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
 from .utils import Item, RecommendItem
