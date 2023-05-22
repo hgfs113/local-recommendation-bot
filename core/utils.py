@@ -106,8 +106,8 @@ def distance_haversine(p1, p2):
     return d
 
 
-def get_nearest(USER_DICT, places, coords, N):
-    recommend_history = USER_DICT['recommend_history']
+def get_nearest(USER_INFO, places, coords, N):
+    recommend_history = USER_INFO['recommend_history']
     place2dist = {}
 
     lon, lat = coords
@@ -132,10 +132,10 @@ def dist_to_str(dist):
     return f'{km} км {m} м'
 
 
-def stream_blender_diego(USER_DICT, recommended_items,
+def stream_blender_diego(USER_INFO, recommended_items,
                          blender_limit, temperature,
                          max_iter=10000):
-    user_coords = np.array([[USER_DICT['lon'], USER_DICT['lat']]])
+    user_coords = np.array([[USER_INFO['lon'], USER_INFO['lat']]])
     item_coords = []
     for item in recommended_items:
         item_coords.append([item.lon, item.lat])
