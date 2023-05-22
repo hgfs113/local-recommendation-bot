@@ -11,6 +11,7 @@ food_recomender = recommender.FoodRecommender()
 
 bot = TeleBot(token=TOKEN)
 
+
 def gen_markup():
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
@@ -24,6 +25,7 @@ def gen_markup():
 #         bot.answer_callback_query(call.id, "Answer is Yes")
 #     elif call.data == "cb_no":
 #         bot.answer_callback_query(call.id, "Answer is No")
+
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -89,7 +91,9 @@ def get_text_messages(message):
     base_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     base_markup.add(*(types.KeyboardButton(cmd) for cmd in base_commands))
 
-    recommendation_types = ['Рестораны 🍳', 'Парки 🌲', 'Театры 🎭', 'Музеи 🖼️', 'Всё 🎈']
+    recommendation_types = ['Рестораны 🍳', 'Парки 🌲',
+                            'Театры 🎭', 'Музеи 🖼️',
+                            'Всё 🎈']
     rec_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     rec_markup.add(*(
             types.KeyboardButton(rec_type) for rec_type in recommendation_types
