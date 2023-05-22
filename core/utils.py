@@ -35,6 +35,8 @@ class Item:
         return None
 
     def add_rating(self, rating):
+        if self.avg_rating is None:
+            self.avg_rating = 0
         self.avg_rating = (
                 self.counts * self.avg_rating + rating
             ) / (self.counts + 1)
@@ -52,9 +54,9 @@ class RecommendItem(Item):
     такую как расстояние и пр.
     """
 
-    def __init__(self, name, address, lon, lat, dist):
+    def __init__(self, item, dist):
         self.dist = dist
-        super().__init__(name, address, lon, lat)
+        super().__init__(item.name, item.address, item.lon, item.lat)
 
 
 def get_address_from_coords(coords):

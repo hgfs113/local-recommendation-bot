@@ -1,11 +1,13 @@
 from telebot import TeleBot, types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from core import recommender, utils
+from collections import defaultdict
 
 
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
 USER_DICT = dict()
+REC_HIST = defaultdict(dict)
 food_recomender = recommender.FoodRecommender()
 
 
@@ -19,12 +21,19 @@ def gen_markup():
                InlineKeyboardButton("👎", callback_data="cb_no"))
     return markup
 
-# @bot.callback_query_handler(func=lambda call: True)
-# def callback_query(call):
-#     if call.data == "cb_yes":
-#         bot.answer_callback_query(call.id, "Answer is Yes")
-#     elif call.data == "cb_no":
-#         bot.answer_callback_query(call.id, "Answer is No")
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+    if call.message.id in REC_HIST[call.from_user.id]:
+        place_hash = REC_HIST[call.from_user.id][call.message.id]
+        food_recomender.add_rating(
+                item_hash=place_hash,
+                rating_good=(call.data == "cb_yes")
+        )
+        bot.answer_callback_query(call.id, "Answer recorded")
+        del REC_HIST[call.from_user.id][call.message.id]
+    else:
+        bot.answer_callback_query(call.id, "You already vote")
 
 
 @bot.message_handler(commands=['start'])
@@ -43,7 +52,7 @@ def add_geo(message):
     btn1 = types.KeyboardButton(text='Отправить местоположение 🌎',
                                 request_location=True)
     btn2 = types.KeyboardButton(text='Указать адрес 🗺️')
-    btn3 = types.KeyboardButton('Вернуться назад ♾️')
+    btn3 = types.KeyboardButton('Вернуться назад 🛬')
     markup.add(btn1, btn2, btn3)
     bot.send_message(message.from_user.id,
                      'Нажми на кнопку и передай мне свое местоположение',
@@ -81,7 +90,7 @@ def handle_location(message):
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    start_actions = ['👋 Поздороваться', 'Вернуться назад ♾️']
+    start_actions = ['👋 Поздороваться', 'Вернуться назад 🛬']
 
     base_commands = [
             'Как пользоваться ботом? 🤓',
@@ -201,12 +210,16 @@ def get_text_messages(message):
 def write_recommendations(recommended_items, message):
     for i, place in enumerate(recommended_items):
         d = utils.dist_to_str(place.dist)
-        bot.send_message(message.from_user.id,
-                         f'#{i+1}: **{place.name}**\n'
-                         f'- адрес: {place.address}\n'
-                         f'- расстояние от Вас: {d}\n'
-                         f'- рейтинг: {place.get_rating() or "Не указан"}',
-                         parse_mode='Markdown', reply_markup=gen_markup())
+        msg_sent = bot.send_message(
+                message.from_user.id,
+                f'#{i+1}: **{place.name}**\n'
+                f'- адрес: {place.address}\n'
+                f'- расстояние от Вас: {d}\n'
+                f'- рейтинг: {place.get_rating() or "Не указан"}',
+                parse_mode='Markdown', reply_markup=gen_markup()
+            )
+        REC_HIST[message.from_user.id][msg_sent.message_id] = place.get_hash()
+
     bot.send_message(message.from_user.id,
                      'Ещё варианты? 😎',
                      parse_mode='Markdown')
