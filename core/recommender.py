@@ -14,7 +14,7 @@ class Recommender(ABC):
     """
 
     @abstractmethod
-    def get_light_recommender_items(self, USER_DICT, items, coords, limit):
+    def get_light_recommender_items(self, USER_INFO, items, coords, limit):
         """
         Лёгкий рекомендер.
 
@@ -23,17 +23,17 @@ class Recommender(ABC):
         """
         pass
 
-    def before_recommend(self, USER_DICT):
+    def before_recommend(self, USER_INFO):
         """
         Подготовка к вызову рекомендера.
 
         Метод для подготовки данных перед вызовом рекомендера
         для его корректной работы.
         """
-        if 'recommend_history' not in USER_DICT:
-            USER_DICT['recommend_history'] = set()
+        if 'recommend_history' not in USER_INFO:
+            USER_INFO['recommend_history'] = set()
 
-    def stream_blender(self, USER_DICT, recommended_items, blender_limit=5,
+    def stream_blender(self, USER_INFO, recommended_items, blender_limit=5,
                        mode='Diego', temperature=5):
         """
         Возвращает финальную пачку рекомендаций с вертикали.
@@ -51,7 +51,7 @@ class Recommender(ABC):
 
         if mode == 'Diego':
             stream_items = stream_blender_diego(
-                USER_DICT,
+                USER_INFO,
                 recommended_items,
                 blender_limit,
                 temperature)
@@ -62,28 +62,28 @@ class Recommender(ABC):
         stream_items = sorted(stream_items, key=lambda item: item.dist)
         return stream_items
 
-    def recommend(self, USER_DICT, recommend_limit=20, blender_limit=5):
+    def recommend(self, USER_INFO, recommend_limit=20, blender_limit=5):
         """
         Основная функция рекомендера.
 
         Рекомендер возвращает список из limit карточек рекомендаций,
         которые затем будут обработаны в большом блендере
         """
-        self.before_recommend(USER_DICT)
+        self.before_recommend(USER_INFO)
 
-        lon, lat = USER_DICT['lon'], USER_DICT['lat']
+        lon, lat = USER_INFO['lon'], USER_INFO['lat']
         recommended_items = self.get_light_recommender_items(
-            USER_DICT,
+            USER_INFO,
             self.candidates,
             (lon, lat),
             recommend_limit)
 
         for recommended_item in recommended_items:
             item_hash = recommended_item.get_hash()
-            USER_DICT['recommend_history'].add(item_hash)
+            USER_INFO['recommend_history'].add(item_hash)
 
         stream_items = self.stream_blender(
-            USER_DICT,
+            USER_INFO,
             recommended_items,
             blender_limit)
         return stream_items
@@ -114,9 +114,9 @@ class FoodRecommender(Recommender):
                 candidates.append(item)
         self.candidates = candidates
 
-    def get_light_recommender_items(self, USER_DICT, places, coords, limit):
+    def get_light_recommender_items(self, USER_INFO, places, coords, limit):
         """Возвращает limit ближайших ресторанов."""
-        items_with_dist = get_nearest(USER_DICT, places, coords, limit)
+        items_with_dist = get_nearest(USER_INFO, places, coords, limit)
         recommended_items = []
 
         for (item, dist) in items_with_dist:
