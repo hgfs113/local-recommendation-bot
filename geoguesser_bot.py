@@ -6,7 +6,7 @@ from collections import defaultdict
 
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
-USER_INFO_AGGREGATOR = dict()
+USER_INFO_AGGREGATOR = defaultdict(dict)
 REC_HIST = defaultdict(dict)
 food_recomender = recommender.FoodRecommender()
 
@@ -38,9 +38,6 @@ def callback_query(call):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    user_id = message.from_user.id
-    if user_id not in USER_INFO_AGGREGATOR:
-        USER_INFO_AGGREGATOR[user_id] = dict()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn = types.KeyboardButton('👋 Поздороваться')
     markup.add(btn)
