@@ -148,9 +148,10 @@ def get_text_messages(message):
                              'Я не знаю, где ты находишься',
                              parse_mode='Markdown')
         else:
-            recommended_items = food_recomender.recommend(USER_DICT,
-                                                          recommend_limit=20,
-                                                          blender_limit=5)
+            recommended_items = food_recomender.recommend(
+                USER_DICT,
+                recommend_limit=20,
+                blender_limit=5)
             write_recommendations(recommended_items, message)
 
     else:

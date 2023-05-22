@@ -1,4 +1,6 @@
 import requests
+import numpy as np
+from scipy.spatial import distance_matrix
 from math import radians, cos, sin, asin, sqrt
 
 
@@ -126,3 +128,50 @@ def dist_to_str(dist):
     elif m == 0:
         return f'{km} км'
     return f'{km} км {m} м'
+
+
+def stream_blender_diego(USER_DICT, recommended_items,
+                         blender_limit, temperature,
+                         max_iter=10000):
+    user_coords = np.array([[USER_DICT['lon'], USER_DICT['lat']]])
+    item_coords = []
+    for item in recommended_items:
+        item_coords.append([item.lon, item.lat])
+    item_coords = np.array(item_coords)
+
+    idx_set = set()
+    free_idx_set = set(range(item_coords.shape[0]))
+
+    d0 = distance_matrix(user_coords, item_coords)
+    d0_copy = d0.copy()
+    for _ in range(temperature):
+        nearest_idx = d0_copy.argmin()
+        d0_copy[:, nearest_idx] = -1
+    nearest_idx = d0_copy.argmin()
+    idx_set.add(nearest_idx)
+
+    d = distance_matrix(item_coords, item_coords)
+    cur_iter = 0
+    while len(idx_set) < blender_limit:
+        d_copy = d.copy()
+        for _ in range(temperature):
+            i, j = np.unravel_index(d_copy.argmax(), d_copy.shape)
+            d_copy[i, j] = -1
+        i, j = np.unravel_index(d_copy.argmax(), d_copy.shape)
+        d[i, j] = -1
+        idx_set.add(i)
+        idx_set.add(j)
+        if i in free_idx_set:
+            free_idx_set.remove(i)
+        if j in free_idx_set:
+            free_idx_set.remove(j)
+        cur_iter += 1
+        if cur_iter > max_iter:
+            print('WARNING: stream blender got into an endless loop')
+            break
+
+    stream_items = []
+    for idx in idx_set:
+        stream_items.append(recommended_items[idx])
+
+    return stream_items
