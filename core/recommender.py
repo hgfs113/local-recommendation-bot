@@ -14,16 +14,6 @@ class Recommender(ABC):
     """
 
     @abstractmethod
-    def get_candidates(self):
-        """
-        Возвращает список кандидатов.
-
-        Кандидаты - все возможные айтемы,
-        которые могут быть порекомендованы.
-        """
-        pass
-
-    @abstractmethod
     def get_light_recommender_items(self, USER_DICT, items, coords, limit):
         """
         Лёгкий рекомендер.
@@ -81,11 +71,10 @@ class Recommender(ABC):
         """
         self.before_recommend(USER_DICT)
 
-        candidates = self.get_candidates()
         lon, lat = USER_DICT['lon'], USER_DICT['lat']
         recommended_items = self.get_light_recommender_items(
             USER_DICT,
-            candidates,
+            self.candidates,
             (lon, lat),
             recommend_limit)
 
@@ -99,12 +88,19 @@ class Recommender(ABC):
             blender_limit)
         return stream_items
 
+    def add_rating(self, *, item_hash=None, rating_good=True):
+        for idx, cand in enumerate(self.candidates):
+            if cand.get_hash() == item_hash:
+                self.candidates[idx].add_rating(1 * rating_good)
+                print(self.candidates[idx].avg_rating)
+                return
+
 
 class FoodRecommender(Recommender):
     """Рекомендер ресторанов."""
 
-    def get_candidates(self):
-        """Возвращает список всех ресторанов."""
+    def __init__(self):
+        """Сохраняет список всех ресторанов."""
         df_food = pd.read_csv('PlacesDatabase/food_places.csv')
         candidates = []
         for row in df_food.itertuples():
@@ -116,7 +112,7 @@ class FoodRecommender(Recommender):
                      lon,
                      lat)
                 candidates.append(item)
-        return candidates
+        self.candidates = candidates
 
     def get_light_recommender_items(self, USER_DICT, places, coords, limit):
         """Возвращает limit ближайших ресторанов."""
@@ -124,13 +120,7 @@ class FoodRecommender(Recommender):
         recommended_items = []
 
         for (item, dist) in items_with_dist:
-            recommended_item = RecommendItem(
-                item.name,
-                item.address,
-                item.lon,
-                item.lat,
-                dist
-            )
+            recommended_item = RecommendItem(item, dist)
             recommended_items.append(recommended_item)
 
         return recommended_items

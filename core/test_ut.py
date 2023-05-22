@@ -24,11 +24,11 @@ def test_Recommender_stream_blender():
     USER_DICT = {'lon': 30.315868,
                  'lat': 59.939095,
                  'recommend_history': set()}
-    recommended_items = [RecommendItem('hash1', 'hash1', 1, 1, dist=0.1),
-                         RecommendItem('hash2', 'hash2', 2, 1, dist=0.2),
-                         RecommendItem('hash3', 'hash3', 1, 2, dist=0.3),
-                         RecommendItem('hash4', 'hash4', 2, 2, dist=0.4),
-                         RecommendItem('hash5', 'hash5', 2, 3, dist=0.5)]
+    recommended_items = [RecommendItem(Item('hash1', 'hash1', 1, 1), dist=0.1),
+                         RecommendItem(Item('hash2', 'hash2', 2, 1), dist=0.2),
+                         RecommendItem(Item('hash3', 'hash3', 1, 2), dist=0.3),
+                         RecommendItem(Item('hash4', 'hash4', 2, 2), dist=0.4),
+                         RecommendItem(Item('hash5', 'hash5', 2, 3), dist=0.5)]
 
     # Тестируется произвольный дочерний класс абстрактного Recommender
     recommender = FoodRecommender()
