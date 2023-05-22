@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
-from scipy.spatial import distance_matrix
-from .utils import validate_point, get_nearest, Item, RecommendItem
+from .utils import Item, RecommendItem
+from .utils import validate_point, get_nearest, stream_blender_diego
 
 
 class Recommender(ABC):
@@ -25,7 +25,7 @@ class Recommender(ABC):
         pass
 
     @abstractmethod
-    def get_recommended_items(self, USER_DICT, items, coords, limit):
+    def get_light_recommender_items(self, USER_DICT, items, coords, limit):
         """
         Лёгкий рекомендер.
 
@@ -44,55 +44,31 @@ class Recommender(ABC):
         if 'recommend_history' not in USER_DICT:
             USER_DICT['recommend_history'] = set()
 
-    def stream_blender(self, USER_DICT, recommended_items,
-                       blender_limit=5, temperature=5):
+    def stream_blender(self, USER_DICT, recommended_items, blender_limit=5,
+                       mode='Diego', temperature=5):
         """
         Возвращает финальную пачку рекомендаций с вертикали.
 
-        Получает карточки recommended_items, перемешивает их
-        согласно определённым правилам и возвращает финальные
-        N карточек рекомендаций
+        Получает карточки лёгкого рекомендера, перемешивает их
+        согласно определённым правилам, которые задаются в mode,
+        и возвращает финальные blender_limit карточек рекомендаций.
+
+        По умолчанию выбран mode='Diego', который позволяет получать
+        разнообразные по местоположению рекомендации. Параметр temperature
+        задаёт степень разнообразия (чем больше temperature, тем его меньше)
         """
         if blender_limit > len(recommended_items):
             blender_limit = len(recommended_items)
 
-        user_coords = np.array([[USER_DICT['lon'], USER_DICT['lat']]])
-        item_coords = []
-        for item in recommended_items:
-            item_coords.append([item.lon, item.lat])
-        item_coords = np.array(item_coords)
-
-        idx_set = set()
-        free_idx_set = set(range(item_coords.shape[0]))
-
-        d0 = distance_matrix(user_coords, item_coords)
-        d0_copy = d0.copy()
-        for _ in range(temperature):
-            nearest_idx = d0_copy.argmin()
-            d0_copy[:, nearest_idx] = -1
-        nearest_idx = d0_copy.argmin()
-        idx_set.add(nearest_idx)
-
-        while len(idx_set) < blender_limit:
-            idx = np.array(list(idx_set))
-            free_idx = np.array(list(free_idx_set))
-            d = distance_matrix(item_coords[idx], item_coords[free_idx])
-            d_copy = d.copy()
-            for _ in range(temperature):
-                i, j = np.unravel_index(d_copy.argmax(), d_copy.shape)
-                d_copy[i, j] = -1
-            i, j = np.unravel_index(d_copy.argmax(), d_copy.shape)
-            d[i, j] = -1
-            idx_set.add(i)
-            idx_set.add(j)
-            if i in free_idx_set:
-                free_idx_set.remove(i)
-            if j in free_idx_set:
-                free_idx_set.remove(j)
-
-        stream_items = []
-        for idx in idx_set:
-            stream_items.append(recommended_items[idx])
+        if mode == 'Diego':
+            stream_items = stream_blender_diego(
+                USER_DICT,
+                recommended_items,
+                blender_limit,
+                temperature)
+        else:
+            print('ERROR: Unknown stream blender mode')
+            return []
 
         stream_items = sorted(stream_items, key=lambda item: item.dist)
         return stream_items
@@ -108,18 +84,20 @@ class Recommender(ABC):
 
         candidates = self.get_candidates()
         lon, lat = USER_DICT['lon'], USER_DICT['lat']
-        recommended_items = self.get_recommended_items(USER_DICT,
-                                                       candidates,
-                                                       (lon, lat),
-                                                       recommend_limit)
+        recommended_items = self.get_light_recommender_items(
+            USER_DICT,
+            candidates,
+            (lon, lat),
+            recommend_limit)
 
         for recommended_item in recommended_items:
             item_hash = recommended_item.get_hash()
             USER_DICT['recommend_history'].add(item_hash)
 
-        stream_items = self.stream_blender(USER_DICT,
-                                           recommended_items,
-                                           blender_limit)
+        stream_items = self.stream_blender(
+            USER_DICT,
+            recommended_items,
+            blender_limit)
         return stream_items
 
 
@@ -141,7 +119,7 @@ class FoodRecommender(Recommender):
                 candidates.append(item)
         return candidates
 
-    def get_recommended_items(self, USER_DICT, places, coords, limit):
+    def get_light_recommender_items(self, USER_DICT, places, coords, limit):
         """Возвращает limit ближайших ресторанов."""
         items_with_dist = get_nearest(USER_DICT, places, coords, limit)
         recommended_items = []
