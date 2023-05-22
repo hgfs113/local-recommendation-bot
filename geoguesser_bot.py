@@ -1,5 +1,5 @@
 from telebot import TeleBot, types
-
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from core import recommender, utils
 
 
@@ -11,6 +11,19 @@ food_recomender = recommender.FoodRecommender()
 
 bot = TeleBot(token=TOKEN)
 
+def gen_markup():
+    markup = InlineKeyboardMarkup()
+    markup.row_width = 2
+    markup.add(InlineKeyboardButton("👍", callback_data="cb_yes"),
+               InlineKeyboardButton("👎", callback_data="cb_no"))
+    return markup
+
+# @bot.callback_query_handler(func=lambda call: True)
+# def callback_query(call):
+#     if call.data == "cb_yes":
+#         bot.answer_callback_query(call.id, "Answer is Yes")
+#     elif call.data == "cb_no":
+#         bot.answer_callback_query(call.id, "Answer is No")
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -25,10 +38,10 @@ def start(message):
 @bot.message_handler(commands=['add_geo'])
 def add_geo(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton(text='Отправить местоположение',
+    btn1 = types.KeyboardButton(text='Отправить местоположение 🌎',
                                 request_location=True)
-    btn2 = types.KeyboardButton(text='Указать адрес')
-    btn3 = types.KeyboardButton('Вернуться назад')
+    btn2 = types.KeyboardButton(text='Указать адрес 🗺️')
+    btn3 = types.KeyboardButton('Вернуться назад ♾️')
     markup.add(btn1, btn2, btn3)
     bot.send_message(message.from_user.id,
                      'Нажми на кнопку и передай мне свое местоположение',
@@ -39,8 +52,8 @@ def add_geo(message):
 def handle_location(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     if message.location is not None:
-        btn1 = types.KeyboardButton(text='Да')
-        btn2 = types.KeyboardButton(text='Нет')
+        btn1 = types.KeyboardButton(text='Да ✔️')
+        btn2 = types.KeyboardButton(text='Нет ❌')
         markup.add(btn1, btn2)
 
         lon, lat = message.location.longitude, message.location.latitude
@@ -60,23 +73,23 @@ def handle_location(message):
 
     else:
         bot.send_message(message.from_user.id,
-                         'Не могу определить твою локацию :(',
+                         'Не могу определить твою локацию 😿',
                          reply_markup=markup)
 
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
-    start_actions = ['👋 Поздороваться', 'Вернуться назад']
+    start_actions = ['👋 Поздороваться', 'Вернуться назад ♾️']
 
     base_commands = [
-            'Как пользоваться ботом?',
-            'СТАРТ',
-            'Наш репозиторий'
+            'Как пользоваться ботом? 🤓',
+            'СТАРТ 🚀',
+            'Наш репозиторий 👻'
         ]
     base_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     base_markup.add(*(types.KeyboardButton(cmd) for cmd in base_commands))
 
-    recommendation_types = ['Рестораны', 'Парки', 'Театры', 'Музеи', 'Всё']
+    recommendation_types = ['Рестораны 🍳', 'Парки 🌲', 'Театры 🎭', 'Музеи 🖼️', 'Всё 🎈']
     rec_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     rec_markup.add(*(
             types.KeyboardButton(rec_type) for rec_type in recommendation_types
@@ -84,13 +97,13 @@ def get_text_messages(message):
     )
 
     check_rec_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn_var = types.KeyboardButton('Посмотреть варианты')
-    btn_back = types.KeyboardButton('Вернуться назад')
+    btn_var = types.KeyboardButton('Посмотреть варианты 🤔')
+    btn_back = types.KeyboardButton('Вернуться назад 🛬')
     check_rec_markup.add(btn_var, btn_back)
 
     location_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn_address = types.KeyboardButton(text='Указать адрес')
-    btn_dest = types.KeyboardButton(text='Отправить местоположение',
+    btn_address = types.KeyboardButton(text='Указать адрес 🗺️')
+    btn_dest = types.KeyboardButton(text='Отправить местоположение 🌎',
                                     request_location=True)
     location_markup.add(btn_address, btn_dest, btn_back)
 
@@ -99,20 +112,20 @@ def get_text_messages(message):
                          '❓ Что вас интересует?',
                          reply_markup=base_markup)
 
-    elif message.text == 'Как пользоваться ботом?':
+    elif message.text == 'Как пользоваться ботом? 🤓':
         how_to_msg = r'Воспользуйтесь командой /add\_geo, ' \
             r'чтобы добавить ваше местонахождение'
         bot.send_message(message.from_user.id,
                          how_to_msg,
                          parse_mode='MarkdownV2')
 
-    elif message.text == 'СТАРТ':
+    elif message.text == 'СТАРТ 🚀':
         bot.send_message(message.from_user.id,
                          'Нажми на кнопку и передай мне свое местоположение',
                          reply_markup=location_markup)
 
     # FIXME replace 'Да' by another logic
-    elif message.text in ['Отправить местоположение', 'Да']:
+    elif message.text in ['Отправить местоположение 🌎', 'Да ✔️']:
         bot.send_message(message.from_user.id,
                          'Выбери, какие рекомендации ты хочешь получить',
                          reply_markup=rec_markup,
@@ -121,14 +134,14 @@ def get_text_messages(message):
     elif message.text.startswith('Введите адрес в формате'):
         print('Введите адрес в формате... TODO')
 
-    elif message.text == 'Наш репозиторий':
+    elif message.text == 'Наш репозиторий 👻':
         mess = 'Детали нашего проекта вы можете посмотреть по '
         link = '[ссылке](https://github.com/hgfs113/local-recommendation-bot)'
         bot.send_message(message.from_user.id,
                          mess + link,
                          parse_mode='Markdown')
 
-    elif message.text == 'Указать адрес':
+    elif message.text == 'Указать адрес 🗺️':
         mess = 'Введите адрес в формате x.x, x.x (для координат)'
         ' или в формате Город, Улица, Номер дома (через запятую)'
         bot.send_message(message.from_user.id,
@@ -142,7 +155,7 @@ def get_text_messages(message):
                          reply_markup=check_rec_markup,
                          parse_mode='Markdown')
 
-    elif message.text == 'Посмотреть варианты':
+    elif message.text == 'Посмотреть варианты 🤔':
         if 'lon' not in USER_DICT or 'lat' not in USER_DICT:
             bot.send_message(message.from_user.id,
                              'Я не знаю, где ты находишься',
@@ -189,9 +202,9 @@ def write_recommendations(recommended_items, message):
                          f'- адрес: {place.address}\n'
                          f'- расстояние от Вас: {d}\n'
                          f'- рейтинг: {place.get_rating() or "Не указан"}',
-                         parse_mode='Markdown')
+                         parse_mode='Markdown', reply_markup=gen_markup())
     bot.send_message(message.from_user.id,
-                     'Ещё варианты?',
+                     'Ещё варианты? 😎',
                      parse_mode='Markdown')
 
 
