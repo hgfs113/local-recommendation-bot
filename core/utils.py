@@ -153,10 +153,6 @@ def stream_blender_diego(USER_DICT, recommended_items,
     d = distance_matrix(item_coords, item_coords)
     cur_iter = 0
     while len(idx_set) < blender_limit:
-        #idx = np.array(list(idx_set))
-        #free_idx = np.array(list(free_idx_set))
-        #d = distance_matrix(item_coords[idx], item_coords[free_idx])
-        #print(d.shape, idx_set)
         d_copy = d.copy()
         for _ in range(temperature):
             i, j = np.unravel_index(d_copy.argmax(), d_copy.shape)
