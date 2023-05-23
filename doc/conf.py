@@ -1,5 +1,8 @@
+# flake8: noqa
 import sys
-sys.path.insert(0, '../')
+sys.path.insert(0, '..')
+
+from core.recommender import Recommender
 
 # Configuration file for the Sphinx documentation builder.
 #
