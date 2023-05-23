@@ -1,6 +1,5 @@
 import pandas as pd
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from .utils import ItemType, Item, RecommendItem
 from .utils import validate_point, get_nearest, stream_blender_diego
 
@@ -24,8 +23,8 @@ class CandidatesHolder:
             self.type_to_candidates = type_to_candidates
         else:
             self.type_to_candidates = {
-                ItemType.FOOD: defaultdict(Item),
-                ItemType.SHOP: defaultdict(Item)
+                ItemType.FOOD: dict(),
+                ItemType.SHOP: dict()
             }
 
     def get_candidates_by_type(self, item_type):
@@ -68,6 +67,14 @@ class CandidatesHolder:
                     lat)
                 shop_candidates[item.item_id] = item
         return shop_candidates
+
+    def add_rating(self, *, item_id=None, rating_good=True):
+        for item_type, candidates in self.type_to_candidates.items():
+            if item_id in candidates:
+                self.type_to_candidates[item_type][item_id].add_rating(
+                    1 * rating_good
+                )
+                return
 
 
 class Recommender(ABC):
@@ -167,12 +174,6 @@ class Recommender(ABC):
             recommended_items,
             blender_limit)
         return stream_items
-
-    def add_rating(self, *, item_id=None, rating_good=True):
-        for candidate_item_id in self.candidates:
-            if candidate_item_id == item_id:
-                self.candidates[candidate_item_id].add_rating(1 * rating_good)
-                return
 
 
 class FoodRecommender(Recommender):

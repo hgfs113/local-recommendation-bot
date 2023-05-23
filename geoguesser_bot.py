@@ -42,14 +42,14 @@ def gen_markup():
 def callback_query(call):
     if call.message.id in REC_HIST[call.from_user.id]:
         place_id = REC_HIST[call.from_user.id][call.message.id]
-        food_recomender.add_rating(
+        CANDIDATES_HOLDER.add_rating(
                 item_id=place_id,
                 rating_good=(call.data == "cb_yes")
         )
         bot.answer_callback_query(call.id, "Answer recorded")
         del REC_HIST[call.from_user.id][call.message.id]
     else:
-        bot.answer_callback_query(call.id, "You already vote")
+        bot.answer_callback_query(call.id, "You have already vote")
 
 
 @bot.message_handler(commands=['start'])
