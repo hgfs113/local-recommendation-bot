@@ -81,12 +81,11 @@ class Recommender(ABC):
 
     def __init__(self, item_type, candidates_holder):
         """
-        Хранит словарь кандидатов.
+        Содержит тип рекоммендера и хранителя кандидатов.
 
-        Словарь кандидатов должен быть полем в CandidatesHolder.
-        Ключом словаря является item_id, значением - item.
-        Задаётся в моменте создания рекомендера.
-        Обновляется в CandidatesHolder.
+        Кандидаты в рекомендере берутся из candidates_holder по item_type.
+        После вызова метода update() в candidates_holder все кандидаты
+        будут обновлены в рекомендере автоматически.
         """
         self.item_type = item_type
         self.candidates_holder = candidates_holder
