@@ -200,7 +200,7 @@ class ShopRecommender(Recommender):
                                     coords, limit):
         """
         Возвращает limit ближайших ресторанов.
-        
+
         Пока логика light recommender такая же, как и у FoodRecommender.
         Но это временно.
         """
