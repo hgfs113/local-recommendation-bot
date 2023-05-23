@@ -1,6 +1,6 @@
 import pandas as pd
 from abc import ABC, abstractmethod
-from .utils import Item, RecommendItem
+from .utils import ItemType, Item, RecommendItem
 from .utils import validate_point, get_nearest, stream_blender_diego
 
 
@@ -79,8 +79,8 @@ class Recommender(ABC):
             recommend_limit)
 
         for recommended_item in recommended_items:
-            item_hash = recommended_item.get_hash()
-            USER_INFO['recommend_history'].add(item_hash)
+            item_id = recommended_item.item_id
+            USER_INFO['recommend_history'].add(item_id)
 
         stream_items = self.stream_blender(
             USER_INFO,
@@ -88,9 +88,9 @@ class Recommender(ABC):
             blender_limit)
         return stream_items
 
-    def add_rating(self, *, item_hash=None, rating_good=True):
+    def add_rating(self, *, item_id=None, rating_good=True):
         for idx, cand in enumerate(self.candidates):
-            if cand.get_hash() == item_hash:
+            if cand.item_id == item_id:
                 self.candidates[idx].add_rating(1 * rating_good)
                 print(self.candidates[idx].avg_rating)
                 return
@@ -107,10 +107,11 @@ class FoodRecommender(Recommender):
             lon, lat = row.Longitude_WGS84_en, row.Latitude_WGS84_en
             if validate_point((lon, lat)):
                 item = Item(
-                     row.Name_en,
-                     row.Address_en,
-                     lon,
-                     lat)
+                    ItemType.FOOD,
+                    row.Name_en,
+                    row.Address_en,
+                    lon,
+                    lat)
                 candidates.append(item)
         self.candidates = candidates
 
