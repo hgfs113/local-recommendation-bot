@@ -28,9 +28,13 @@
 ## Локализация
 
 Созданиеs:
+
 ```pybabel extract --input-dirs=. --output-file=messages.pot```
+
 ```mkdir -p locale/en/LC_MESSAGES```
+
 ```mv locale/en/LC_MESSAGES/locale.po locale/en/LC_MESSAGES/messages.mo```
+
 Чтобы сделать `*.mo` генерат: ```pybabel compile -d locale --locale en```
 
 **UI**
