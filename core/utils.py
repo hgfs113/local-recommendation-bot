@@ -143,18 +143,18 @@ def distance_haversine(p1, p2):
     return d
 
 
-def get_nearest(USER_INFO, places, coords, N):
+def get_nearest(USER_INFO, candidates, coords, N):
     recommend_history = USER_INFO['recommend_history']
     place2dist = {}
 
     lon, lat = coords
-    for place in places:
-        place_id = place.item_id
-        if place_id in recommend_history:
+    for item_id in candidates:
+        if item_id in recommend_history:
             continue
-        p_lon, p_lat = place.get_coords()
+        item = candidates[item_id]
+        p_lon, p_lat = item.get_coords()
         dist = distance_haversine((lon, lat), (p_lon, p_lat))
-        place2dist[place] = dist
+        place2dist[item] = dist
 
     return sorted(place2dist.items(), key=lambda item: item[1])[: N]
 

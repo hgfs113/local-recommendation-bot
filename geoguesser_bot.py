@@ -6,11 +6,14 @@ from collections import defaultdict
 
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
+
 USER_INFO_AGGREGATOR = defaultdict(dict)
 REC_HIST = defaultdict(dict)
-food_recomender = recommender.FoodRecommender()
+CANDIDATES_HOLDER = recommender.CandidatesHolder()
 
-
+food_recomender = recommender.FoodRecommender(
+    recommender.ItemType.FOOD,
+    CANDIDATES_HOLDER)
 bot = TeleBot(token=TOKEN)
 
 
@@ -227,4 +230,7 @@ def write_recommendations(recommended_items, message):
 
 
 if __name__ == "__main__":
+    CANDIDATES_HOLDER.update(
+        food_path='PlacesDatabase/food_places.csv',
+        shop_path='PlacesDatabase/shopping_v1.csv')
     bot.polling(none_stop=True, interval=0)
