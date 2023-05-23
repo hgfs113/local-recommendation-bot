@@ -190,3 +190,25 @@ class FoodRecommender(Recommender):
             recommended_items.append(recommended_item)
 
         return recommended_items
+
+
+class ShopRecommender(Recommender):
+
+    """Рекомендер магазинов."""
+
+    def get_light_recommender_items(self, USER_INFO, candidates,
+                                    coords, limit):
+        """
+        Возвращает limit ближайших ресторанов.
+        
+        Пока логика light recommender такая же, как и у FoodRecommender.
+        Но это временно.
+        """
+        items_with_dist = get_nearest(USER_INFO, candidates, coords, limit)
+        recommended_items = []
+
+        for (item, dist) in items_with_dist:
+            recommended_item = RecommendItem(item, dist)
+            recommended_items.append(recommended_item)
+
+        return recommended_items
