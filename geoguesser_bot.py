@@ -2,16 +2,24 @@ from telebot import TeleBot, types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from core import recommender, utils
 from collections import defaultdict
+import gettext
+
+
+_ = gettext.translation(
+    domain="messages",
+    localedir="locale",
+    languages=["en"],
+).gettext
 
 
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
-RECNAME_FOOD = 'Рестораны 🍳'
-RECNAME_SHOP = 'Магазины 🛒'
-RECNAME_PARK = 'Парки 🌲'
-RECNAME_THEATER = 'Театры 🎭'
-RECNAME_MUSEUM = 'Музеи 🖼️'
-RECNAME_ALL = 'Всё 🎈'
+RECNAME_FOOD = _('Рестораны 🍳')
+RECNAME_SHOP = _('Магазины 🛒')
+RECNAME_PARK = _('Парки 🌲')
+RECNAME_THEATER = _('Театры 🎭')
+RECNAME_MUSEUM = _('Музеи 🖼️')
+RECNAME_ALL = _('Всё 🎈')
 RECNAME_TO_ITEM_TYPE = {
     RECNAME_FOOD: utils.ItemType.FOOD,
     RECNAME_SHOP: utils.ItemType.SHOP
@@ -33,23 +41,25 @@ bot = TeleBot(token=TOKEN)
 def gen_markup():
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
-    markup.add(InlineKeyboardButton("👍", callback_data="cb_yes"),
-               InlineKeyboardButton("👎", callback_data="cb_no"))
+    markup.add(InlineKeyboardButton("👍", callback_data="react_yes"),
+               InlineKeyboardButton("👎", callback_data="react_no"))
     return markup
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
-    if call.message.id in REC_HIST[call.from_user.id]:
-        place_id = REC_HIST[call.from_user.id][call.message.id]
-        CANDIDATES_HOLDER.add_rating(
-                item_id=place_id,
-                rating_good=(call.data == "cb_yes")
-        )
-        bot.answer_callback_query(call.id, "Answer recorded")
-        del REC_HIST[call.from_user.id][call.message.id]
-    else:
-        bot.answer_callback_query(call.id, "You have already vote")
+    if call.data.startswith("react"):
+        # reccomendation reaction
+        if call.message.id in REC_HIST[call.from_user.id]:
+            place_id = REC_HIST[call.from_user.id][call.message.id]
+            CANDIDATES_HOLDER.add_rating(
+                    item_id=place_id,
+                    rating_good=(call.data == "react_yes")
+            )
+            bot.answer_callback_query(call.id, "Оценка записана")
+            del REC_HIST[call.from_user.id][call.message.id]
+        else:
+            bot.answer_callback_query(call.id, "Вы уже оставили оценку")
 
 
 @bot.message_handler(commands=['start'])
