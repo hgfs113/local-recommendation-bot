@@ -199,14 +199,19 @@ def get_text_messages(message):
                              'Я не знаю, где ты находишься',
                              parse_mode='Markdown')
         else:
-            if USER_INFO['recommender_type'] == utils.ItemType.FOOD:
+            if 'recommender_type' not in USER_INFO:
+                bot.send_message(message.from_user.id,
+                                 'Вы не выбрали тип рекомендаций',
+                                 parse_mode='Markdown')
+            elif USER_INFO['recommender_type'] == utils.ItemType.FOOD:
                 recommender = food_recomender
             elif USER_INFO['recommender_type'] == utils.ItemType.SHOP:
                 recommender = shop_recomender
             else:
                 bot.send_message(message.from_user.id,
-                                 'Вы не выбрали тип рекомендаций',
+                                 'Этот тип рекомендаций ещё не доступен',
                                  parse_mode='Markdown')
+
             if recommender is not None:
                 recommended_items = recommender.recommend(
                     USER_INFO,
