@@ -47,8 +47,8 @@ class Item:
     накопленный рейтинг.
     """
 
-    def __init__(self, type, name, address, lon, lat):
-        self.type = type
+    def __init__(self, item_type, name, address, lon, lat):
+        self.type = item_type
         self.name = name
         self.address = address
         self.lon = lon
