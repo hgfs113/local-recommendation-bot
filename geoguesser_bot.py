@@ -6,6 +6,16 @@ from collections import defaultdict
 
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
+RECNAME_FOOD = 'Рестораны 🍳'
+RECNAME_SHOP = 'Магазины 🛒'
+RECNAME_PARK = 'Парки 🌲'
+RECNAME_THEATER = 'Театры 🎭'
+RECNAME_MUSEUM = 'Музеи 🖼️'
+RECNAME_ALL = 'Всё 🎈'
+RECNAME_TO_ITEM_TYPE = {
+    RECNAME_FOOD: utils.ItemType.FOOD,
+    RECNAME_SHOP: utils.ItemType.SHOP
+}
 
 USER_INFO_AGGREGATOR = defaultdict(dict)
 REC_HIST = defaultdict(dict)
@@ -13,6 +23,9 @@ CANDIDATES_HOLDER = recommender.CandidatesHolder()
 
 food_recomender = recommender.FoodRecommender(
     recommender.ItemType.FOOD,
+    CANDIDATES_HOLDER)
+shop_recomender = recommender.ShopRecommender(
+    recommender.ItemType.SHOP,
     CANDIDATES_HOLDER)
 bot = TeleBot(token=TOKEN)
 
@@ -104,9 +117,9 @@ def get_text_messages(message):
     base_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     base_markup.add(*(types.KeyboardButton(cmd) for cmd in base_commands))
 
-    recommendation_types = ['Рестораны 🍳', 'Парки 🌲',
-                            'Театры 🎭', 'Музеи 🖼️',
-                            'Всё 🎈']
+    recommendation_types = [RECNAME_FOOD, RECNAME_SHOP,
+                            RECNAME_PARK, RECNAME_THEATER,
+                            RECNAME_MUSEUM, RECNAME_ALL]
     rec_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     rec_markup.add(*(
             types.KeyboardButton(rec_type) for rec_type in recommendation_types
@@ -166,10 +179,18 @@ def get_text_messages(message):
                          parse_mode='Markdown')
 
     elif message.text in recommendation_types:
-        bot.send_message(message.from_user.id,
-                         'Вы выбрали ' + message.text.lower(),
-                         reply_markup=check_rec_markup,
-                         parse_mode='Markdown')
+        if message.text not in RECNAME_TO_ITEM_TYPE:
+            bot.send_message(message.from_user.id,
+                             'Этот тип рекомендаций ещё недоступен',
+                             reply_markup=check_rec_markup,
+                             parse_mode='Markdown')
+        else:
+            bot.send_message(message.from_user.id,
+                             'Вы выбрали ' + message.text.lower(),
+                             reply_markup=check_rec_markup,
+                             parse_mode='Markdown')
+            USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
+            USER_INFO['recommender_type'] = RECNAME_TO_ITEM_TYPE[message.text]
 
     elif message.text == 'Посмотреть варианты 🤔':
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
@@ -178,11 +199,20 @@ def get_text_messages(message):
                              'Я не знаю, где ты находишься',
                              parse_mode='Markdown')
         else:
-            recommended_items = food_recomender.recommend(
-                USER_INFO,
-                recommend_limit=20,
-                blender_limit=5)
-            write_recommendations(recommended_items, message)
+            if USER_INFO['recommender_type'] == utils.ItemType.FOOD:
+                recommender = food_recomender
+            elif USER_INFO['recommender_type'] == utils.ItemType.SHOP:
+                recommender = shop_recomender
+            else:
+                bot.send_message(message.from_user.id,
+                                 'Вы не выбрали тип рекомендаций',
+                                 parse_mode='Markdown')
+            if recommender is not None:
+                recommended_items = recommender.recommend(
+                    USER_INFO,
+                    recommend_limit=20,
+                    blender_limit=5)
+                write_recommendations(recommended_items, message)
 
     else:
         try:
