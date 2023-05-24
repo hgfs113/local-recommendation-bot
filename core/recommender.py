@@ -1,3 +1,5 @@
+import os
+import pickle
 import pandas as pd
 from abc import ABC, abstractmethod
 from .utils import ItemType, Item, RecommendItem
@@ -32,49 +34,55 @@ class CandidatesHolder:
 
     def update(self, food_path, shop_path):
         self.type_to_candidates[ItemType.FOOD] =\
-            self.read_food_candidates(food_path)
+            self.read_candidates_by_type(ItemType.FOOD, food_path)
         self.type_to_candidates[ItemType.SHOP] =\
-            self.read_shop_candidates(shop_path)
+            self.read_candidates_by_type(ItemType.FOOD, shop_path)
 
-    def read_food_candidates(self, food_path):
-        df_food = pd.read_csv(food_path)
-        food_candidates = {}
-        for row in df_food.itertuples():
-            lon, lat = row.Longitude_WGS84_en, row.Latitude_WGS84_en
+    def read_candidates_by_type(self, item_type, path):
+        with open(path + '.pb', 'rb') as f:
+            embeddings = pickle.load(f)
+        df = pd.read_csv(path + '.csv')
+        candidates = {}
+        for i, row in enumerate(df.itertuples()):
+            lon, lat = row.lon, row.lat
             if validate_point((lon, lat)):
                 item = Item(
-                    ItemType.FOOD,
-                    row.Name_en,
-                    row.Address_en,
+                    item_type,
+                    row.name,
+                    row.address,
                     lon,
-                    lat)
-                food_candidates[item.item_id] = item
-        return food_candidates
-
-    def read_shop_candidates(self, shop_path):
-        df_shop = pd.read_csv(shop_path)
-        shop_candidates = {}
-        for row in df_shop.itertuples():
-            geo_data = row.geoData
-            coords = geo_data.split(']')[0].split('[')[1].split(',')
-            lon, lat = float(coords[0]), float(coords[1])
-            if validate_point((lon, lat)):
-                item = Item(
-                    ItemType.SHOP,
-                    row.Наименование,
-                    row.Адрес,
-                    lon,
-                    lat)
-                shop_candidates[item.item_id] = item
-        return shop_candidates
+                    lat,
+                    embeddings[i])
+                candidates[item.item_id] = item
+        return candidates
 
     def add_rating(self, *, item_id=None, rating_good=True):
         for item_type, candidates in self.type_to_candidates.items():
             if item_id in candidates:
-                self.type_to_candidates[item_type][item_id].add_rating(
+                candidate = self.type_to_candidates[item_type][item_id]
+                candidate.add_rating(
                     1 * rating_good
                 )
                 return
+
+
+class FeedbackEventProcessor():
+
+    """
+    В этом классе происходит взаимодействие пользователей с рекомендациями.
+
+    Содержит метод write_user_item_rating(), который пишет
+    оценку пользователя в файл history_path.
+    """
+
+    def __init__(self, history_path):
+        self.history_path = history_path
+
+    def write_user_item_rating(self, user_id, item_id, rating_good):
+        mode = 'a' if os.path.exists(self.history_path) else 'w'
+        rating = 1.0 if rating_good else -1.0
+        with open(self.history_path, mode) as f:
+            f.write(f'{user_id},{item_id},{rating}\n')
 
 
 class Recommender(ABC):

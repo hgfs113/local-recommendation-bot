@@ -89,8 +89,8 @@ def test_candidates_holder():
     CANDIDATES_HOLDER = CandidatesHolder()
 
     CANDIDATES_HOLDER.update(
-        food_path='PlacesDatabase/food_places.csv',
-        shop_path='PlacesDatabase/shopping_v1.csv')
+        food_path='PlacesDatabase/food_places',
+        shop_path='PlacesDatabase/shop_places')
 
     assert len(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD)) \
            == 20563
@@ -121,8 +121,8 @@ def test_item_rating():
         CANDIDATES_HOLDER)
 
     CANDIDATES_HOLDER.update(
-        food_path='PlacesDatabase/food_places.csv',
-        shop_path='PlacesDatabase/shopping_v1.csv')
+        food_path='PlacesDatabase/food_places',
+        shop_path='PlacesDatabase/shop_places')
 
     recommended1 = food_recomender.get_light_recommender_items(
         USER_INFO,
