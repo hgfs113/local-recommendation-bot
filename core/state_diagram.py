@@ -35,26 +35,26 @@ class StateDiagram:
         self.shop_recomender = shop_recomender
         self.state = None
         self.markup = None
-        self.base_commands = [
+        self.bc = [
             'Как пользоваться ботом? 🤓',
             'СТАРТ 🚀',
             'Наш репозиторий 👻'
         ]
-        self.recommendation_types = [RECNAME_FOOD,
-                                     RECNAME_SHOP,
-                                     RECNAME_PARK,
-                                     RECNAME_THEATER,
-                                     RECNAME_MUSEUM,
-                                     RECNAME_ALL]
+        self.recom_types = [RECNAME_FOOD,
+                            RECNAME_SHOP,
+                            RECNAME_PARK,
+                            RECNAME_THEATER,
+                            RECNAME_MUSEUM,
+                            RECNAME_ALL]
         self.init_markups()
 
     def init_markups(self):
         self.base_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        self.base_markup.add(*(types.KeyboardButton(cmd) for cmd in self.base_commands))
+        self.base_markup.add(*(types.KeyboardButton(cmd) for cmd in self.bc))
 
         self.rec_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         self.rec_markup.add(*(
-            types.KeyboardButton(rec_type) for rec_type in self.recommendation_types
+            types.KeyboardButton(rec_type) for rec_type in self.recom_types
         ))
 
         self.check_rec_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -62,11 +62,11 @@ class StateDiagram:
         btn_back = types.KeyboardButton('Вернуться назад 🛬')
         self.check_rec_markup.add(btn_var, btn_back)
 
-        self.location_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        self.loc_mark = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn_address = types.KeyboardButton(text='Указать адрес 🗺️')
         btn_dest = types.KeyboardButton(text='Отправить местоположение 🌎',
                                         request_location=True)
-        self.location_markup.add(btn_address, btn_dest, btn_back)
+        self.loc_mark.add(btn_address, btn_dest, btn_back)
 
         self.start_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn = types.KeyboardButton('👋 Поздороваться')
@@ -125,7 +125,8 @@ class StateDiagram:
     def backward_go(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
         print(USER_INFO["state"])
-        if ("state" not in USER_INFO) or (USER_INFO["state"] == "START_INTERFACE"):
+        if (("state" not in USER_INFO) or
+            (USER_INFO["state"] == "START_INTERFACE")):
             USER_INFO["state"] = "START_INTERFACE"
             mess = "Это стартовый интерфейс"
             self.bot.send_message(message.from_user.id,
@@ -141,11 +142,12 @@ class StateDiagram:
             mess = 'Нажми на кнопку и передай мне свое местоположение'
             self.bot.send_message(message.from_user.id,
                                   mess,
-                                  reply_markup=self.location_markup)
+                                  reply_markup=self.loc_mark)
         elif USER_INFO["state"] == "SHOW_RECOMMENDATION":
             USER_INFO["state"] = "RECOMMENDATION"
+            mess = 'Выбери, какие рекомендации ты хочешь получить'
             self.bot.send_message(message.from_user.id,
-                                  'Выбери, какие рекомендации ты хочешь получить',
+                                  mess,
                                   reply_markup=self.rec_markup,
                                   parse_mode='Markdown')
 
@@ -168,9 +170,10 @@ class StateDiagram:
                                   parse_mode='MarkdownV2')
         elif what_message == "link":
             mess = 'Детали нашего проекта вы можете посмотреть по '
-            link = '[ссылке](https://github.com/hgfs113/local-recommendation-bot)'
+            m = '[ссылке]'
+            link = '(https://github.com/hgfs113/local-recommendation-bot)'
             self.bot.send_message(message.from_user.id,
-                                  mess + link,
+                                  mess + m + link,
                                   parse_mode='Markdown')
 
     def initialize_user(self, message):
@@ -180,7 +183,8 @@ class StateDiagram:
                          "INITIALIZE_USER"]
         if "state" not in USER_INFO:
             USER_INFO["state"] = "START_INTERFACE"
-            mess = "Вы не можете воспользоваться этой командой, пока не нажмете 'старт'"
+            mess = "Вы не можете воспользоваться этой командой, \
+            пока не нажмете 'старт'"
             self.bot.send_message(message.from_user.id,
                                   mess,
                                   reply_markup=self.base_markup)
@@ -189,7 +193,7 @@ class StateDiagram:
             USER_INFO["state"] = "INITIALIZE_USER"
             self.bot.send_message(message.from_user.id,
                                   mess,
-                                  reply_markup=self.location_markup)
+                                  reply_markup=self.loc_mark)
         else:
             mess = "Вы не можете воспользоваться этой командой, \
             пока не завершите текущий процесс."
@@ -205,7 +209,7 @@ class StateDiagram:
         elif USER_INFO["state"] == "START_INTERFACE":
             return self.base_markup
         elif USER_INFO["state"] == "INITIALIZE_USER":
-            return self.location_markup
+            return self.loc_mark
 
     def main(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
@@ -218,8 +222,9 @@ class StateDiagram:
         elif USER_INFO["state"] == "INITIALIZE_USER":
             if message.text in ["Да ✔️", 'Отправить местоположение 🌎']:
                 USER_INFO["state"] = "RECOMMENDATION"
+                mess = 'Выбери, какие рекомендации ты хочешь получить'
                 self.bot.send_message(message.from_user.id,
-                                      'Выбери, какие рекомендации ты хочешь получить',
+                                      mess,
                                       reply_markup=self.rec_markup,
                                       parse_mode='Markdown')
             elif message.text == 'Указать адрес 🗺️':
@@ -246,7 +251,8 @@ class StateDiagram:
         elif USER_INFO["state"] in ["RECOMMENDATION", "INITIALIZE_USER"]:
             if flag_mess:
                 if message.location is not None:
-                    lon, lat = message.location.longitude, message.location.latitude
+                    lon = message.location.longitude
+                    lat = message.location.latitude
                     USER_INFO['lon'] = lon
                     USER_INFO['lat'] = lat
 
@@ -257,13 +263,14 @@ class StateDiagram:
                                               'Твой адрес:' + mess + '?',
                                               reply_markup=self.reply_markup)
                     else:
-                        self.bot.send_message(message.from_user.id,
-                                              mess,
-                                              reply_markup=self.location_markup)
+                        self.bot.send_message(
+                            message.from_user.id,
+                            mess,
+                            reply_markup=self.loc_mark)
                 else:
                     self.bot.send_message(message.from_user.id,
                                           'Не могу определить твою локацию 😿',
-                                          reply_markup=self.location_markup)
+                                          reply_markup=self.loc_mark)
             else:
                 try:
                     address = message.text.split(',')
@@ -274,13 +281,14 @@ class StateDiagram:
                         print('else:', flag, mess)
 
                         if flag:
-                            self.bot.send_message(message.from_user.id,
-                                                  'Твой адрес:' + mess + '?',
-                                                  reply_markup=self.reply_markup)
+                            self.bot.send_message(
+                                message.from_user.id,
+                                'Твой адрес:' + mess + '?',
+                                reply_markup=self.reply_markup)
                         else:
                             self.bot.send_message(message.from_user.id,
                                                   mess,
-                                                  reply_markup=self.location_markup)
+                                                  reply_markup=self.loc_mark)
                 except Exception:
                     self.bot.send_message(message.from_user.id,
                                           'Я не понимаю твою команду :(',
@@ -311,10 +319,11 @@ class StateDiagram:
                                       'Вы выбрали ' + message.text.lower(),
                                       reply_markup=self.check_rec_markup,
                                       parse_mode='Markdown')
-                USER_INFO['recommender_type'] = RECNAME_TO_ITEM_TYPE[message.text]
+                m_text = message.text
+                USER_INFO['recommender_type'] = RECNAME_TO_ITEM_TYPE[m_text]
         else:
-            mess = r"Вы не можете воспользоваться этой командой, " + \
-            r"пока не завершите текущий процесс"
+            mess = "Вы не можете воспользоваться этой командой, \
+            пока не завершите текущий процесс"
             self.bot.send_message(message.from_user.id,
                                   mess,
                                   reply_markup=self.select_markup(message))
