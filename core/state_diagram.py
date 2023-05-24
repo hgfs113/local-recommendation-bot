@@ -125,9 +125,13 @@ class StateDiagram:
     def backward_go(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
         print(USER_INFO["state"])
-        if (("state" not in USER_INFO) or
-            (USER_INFO["state"] == "START_INTERFACE")):
+        if "state" not in USER_INFO:
             USER_INFO["state"] = "START_INTERFACE"
+            mess = "Это стартовый интерфейс"
+            self.bot.send_message(message.from_user.id,
+                                  mess,
+                                  reply_markup=self.base_markup)
+        elif USER_INFO["state"] == "START_INTERFACE":
             mess = "Это стартовый интерфейс"
             self.bot.send_message(message.from_user.id,
                                   mess,
