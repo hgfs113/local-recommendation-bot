@@ -1,4 +1,8 @@
 from telebot import types
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from core import utils
+from collections import defaultdict
+import gettext
 
 
 _ = gettext.translation(
@@ -309,7 +313,7 @@ class StateDiagram:
                                       parse_mode='Markdown')
                 USER_INFO['recommender_type'] = RECNAME_TO_ITEM_TYPE[message.text]
         else:
-            mess = r"Вы не можете воспользоваться этой командой,"\
+            mess = r"Вы не можете воспользоваться этой командой, " + \
             r"пока не завершите текущий процесс"
             self.bot.send_message(message.from_user.id,
                                   mess,

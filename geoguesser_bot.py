@@ -1,8 +1,5 @@
 from telebot import TeleBot, types
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from core import recommender, utils, state_diagram
-from collections import defaultdict
-import gettext
+from core import recommender, state_diagram
 
 
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
@@ -19,12 +16,15 @@ shop_recomender = recommender.ShopRecommender(
 bot = TeleBot(token=TOKEN)
 check_state = state_diagram.StateDiagram(bot, food_recomender, shop_recomender)
 
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     if call.data.startswith("react"):
         # reccomendation reaction
         if call.message.id in state_diagram.REC_HIST[call.from_user.id]:
-            place_id = state_diagram.REC_HIST[call.from_user.id][call.message.id]
+            user_id = call.from_user.id
+            mess_id = call.message.id
+            place_id = state_diagram.REC_HIST[user_id][mess_id]
             CANDIDATES_HOLDER.add_rating(
                     item_id=place_id,
                     rating_good=(call.data == "react_yes")
