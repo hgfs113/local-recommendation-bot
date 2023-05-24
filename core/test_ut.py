@@ -66,3 +66,12 @@ def test_Recommender_stream_blender():
         )
     assert len(stream_items) == 5
     assert stream_items[-1].dist <= 0.5
+
+def test_item():
+    pass
+
+def test_candidates_holder():
+    pass
+
+def test_item_rating():
+    pass
