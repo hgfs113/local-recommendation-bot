@@ -103,5 +103,34 @@ def test_candidates_holder():
     assert CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD)[item_id].get_rating() == \
            sum(ratings) / len(ratings)
 
+
 def test_item_rating():
-    pass
+    ratings = [1] * 10
+    USER_INFO = {'lon': 30.315868,
+                 'lat': 59.939095,
+                 'recommend_history': set()}
+
+    CANDIDATES_HOLDER = CandidatesHolder()
+
+    food_recomender = FoodRecommender(
+        ItemType.FOOD,
+        CANDIDATES_HOLDER)
+
+    CANDIDATES_HOLDER.update(
+        food_path='PlacesDatabase/food_places.csv',
+        shop_path='PlacesDatabase/shopping_v1.csv')
+
+    recommended1 = food_recomender.get_light_recommender_items(USER_INFO,
+                                                               CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD),
+                                                               (USER_INFO['lon'], USER_INFO['lat']), 5)
+
+    item_id = list(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD).keys())[0]
+
+    for r in ratings:
+        CANDIDATES_HOLDER.add_rating(item_id=item_id, rating_good=bool(r))
+
+    recommended2 = food_recomender.get_light_recommender_items(USER_INFO,
+                                                               CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD),
+                                                               (USER_INFO['lon'], USER_INFO['lat']), 5)
+    for r1, r2 in zip(recommended1, recommended2):
+        assert r1.item_id == r2.item_id
