@@ -92,16 +92,20 @@ def test_candidates_holder():
         food_path='PlacesDatabase/food_places.csv',
         shop_path='PlacesDatabase/shopping_v1.csv')
 
-    assert len(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD)) == 20563
-    assert len(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.SHOP)) == 59206
+    assert len(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD)) \
+           == 20563
+    assert len(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.SHOP)) \
+           == 59206
 
-    item_id = list(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD).keys())[0]
+    item_id = list(CANDIDATES_HOLDER.get_candidates_by_type(
+        ItemType.FOOD).keys())[0]
 
     for r in ratings:
-        CANDIDATES_HOLDER.add_rating(item_id=item_id, rating_good=bool(r))
+        CANDIDATES_HOLDER.add_rating(item_id=item_id,
+                                     rating_good=bool(r))
 
-    assert CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD)[item_id].get_rating() == \
-           sum(ratings) / len(ratings)
+    assert CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD)[
+               item_id].get_rating() == sum(ratings) / len(ratings)
 
 
 def test_item_rating():
@@ -121,16 +125,17 @@ def test_item_rating():
         shop_path='PlacesDatabase/shopping_v1.csv')
 
     recommended1 = food_recomender.get_light_recommender_items(USER_INFO,
-                                                               CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD),
-                                                               (USER_INFO['lon'], USER_INFO['lat']), 5)
+                CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD),
+                (USER_INFO['lon'], USER_INFO['lat']), 5)
 
-    item_id = list(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD).keys())[0]
+    item_id = list(CANDIDATES_HOLDER.get_candidates_by_type(
+        ItemType.FOOD).keys())[0]
 
     for r in ratings:
         CANDIDATES_HOLDER.add_rating(item_id=item_id, rating_good=bool(r))
 
     recommended2 = food_recomender.get_light_recommender_items(USER_INFO,
-                                                               CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD),
-                                                               (USER_INFO['lon'], USER_INFO['lat']), 5)
+                CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD),
+                (USER_INFO['lon'], USER_INFO['lat']), 5)
     for r1, r2 in zip(recommended1, recommended2):
         assert r1.item_id == r2.item_id
