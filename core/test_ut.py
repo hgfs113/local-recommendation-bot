@@ -85,7 +85,23 @@ def test_item():
 
 
 def test_candidates_holder():
-    pass
+    ratings = [1, 0, 1, 1, 1, 0, 1, 1]
+    CANDIDATES_HOLDER = CandidatesHolder()
+
+    CANDIDATES_HOLDER.update(
+        food_path='PlacesDatabase/food_places.csv',
+        shop_path='PlacesDatabase/shopping_v1.csv')
+
+    assert len(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD)) == 20563
+    assert len(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.SHOP)) == 59206
+
+    item_id = list(CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD).keys())[0]
+
+    for r in ratings:
+        CANDIDATES_HOLDER.add_rating(item_id=item_id, rating_good=bool(r))
+
+    assert CANDIDATES_HOLDER.get_candidates_by_type(ItemType.FOOD)[item_id].get_rating() == \
+           sum(ratings) / len(ratings)
 
 def test_item_rating():
     pass
