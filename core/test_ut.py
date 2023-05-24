@@ -1,5 +1,6 @@
 from .utils import get_nearest, ItemType, Item, RecommendItem
 from .recommender import CandidatesHolder, FoodRecommender
+import io
 
 
 # Тест на случай, когда все места уже были рекомендованы
@@ -67,8 +68,21 @@ def test_Recommender_stream_blender():
     assert len(stream_items) == 5
     assert stream_items[-1].dist <= 0.5
 
+
 def test_item():
-    pass
+    ratings = [1, 0, 1, 1, 1, 0, 1, 1]
+    item1 = Item(ItemType.FOOD, 'hash1', 'hash1', *(1, 1))
+    for r in ratings:
+        item1.add_rating(r)
+    assert item1.get_rating() == sum(ratings) / len(ratings)
+
+    output = io.StringIO()
+    print(item1, file=output)
+    contents = output.getvalue()
+    output.close()
+
+    assert contents == 'hash1, hash1. Coords: (1, 1)\n'
+
 
 def test_candidates_holder():
     pass
