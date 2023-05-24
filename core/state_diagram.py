@@ -79,52 +79,41 @@ class StateDiagram:
 
     def bot_answer(self, message):
         if message.text == '👋 Поздороваться':
-            print("start_interface")
             self.start_interface(message)
 
         elif message.text == 'Как пользоваться ботом? 🤓':
-            print("usual_message")
             self.usual_message(message, "how_use")
 
         elif message.text == 'Наш репозиторий 👻':
-            print("usual_message")
             self.usual_message(message, "link")
 
         elif message.text in ['СТАРТ 🚀', '/add_geo']:
-            print("initialize_user")
             self.initialize_user(message)
 
         elif message.text in ['Вернуться назад 🛬', '/back']:
-            print("backward_go")
             self.backward_go(message)
 
         elif message.text in ['Отправить местоположение 🌎',
                               'Указать адрес 🗺️', 'Да ✔️']:
-            print("main")
             self.main(message)
 
         elif message.text == 'Нет ❌':
-            print("initialize_user")
             self.initialize_user(message)
 
         elif message.text.startswith('Введите адрес в формате'):
             print('Введите адрес в формате... TODO')
 
-        elif message.text in self.recommendation_types:
-            print("recommendation")
+        elif message.text in self.recom_types:
             self.select_recommendation(message)
 
         elif message.text == 'Посмотреть варианты 🤔':
-            print("show_recommendation")
             self.show_recommendation(message)
 
         else:
-            print(message.text)
             self.read_address(message)
 
     def backward_go(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        print(USER_INFO["state"])
         if "state" not in USER_INFO:
             USER_INFO["state"] = "START_INTERFACE"
             mess = "Это стартовый интерфейс"
@@ -157,7 +146,6 @@ class StateDiagram:
 
     def start_interface(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        print(USER_INFO)
         USER_INFO["state"] = "START_INTERFACE"
         self.bot.send_message(message.from_user.id,
                               '❓ Что вас интересует?',
@@ -182,7 +170,6 @@ class StateDiagram:
 
     def initialize_user(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        print(USER_INFO)
         GOOD_VARIANTS = ["START_INTERFACE", "MAIN",
                          "INITIALIZE_USER"]
         if "state" not in USER_INFO:
@@ -207,7 +194,6 @@ class StateDiagram:
 
     def select_markup(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        print(USER_INFO)
         if "state" not in USER_INFO:
             return self.start_markup
         elif USER_INFO["state"] == "START_INTERFACE":
@@ -217,7 +203,6 @@ class StateDiagram:
 
     def main(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        print(USER_INFO)
         if "state" not in USER_INFO:
             mess = "Странное поведение"
             self.bot.send_message(message.from_user.id,
@@ -246,7 +231,6 @@ class StateDiagram:
 
     def read_address(self, message, flag_mess=False):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        print(USER_INFO)
         if "state" not in USER_INFO:
             mess = "Странное поведение"
             self.bot.send_message(message.from_user.id,
@@ -305,7 +289,6 @@ class StateDiagram:
 
     def select_recommendation(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        print(USER_INFO)
         if "state" not in USER_INFO:
             mess = "Странное поведение"
             self.bot.send_message(message.from_user.id,
@@ -334,7 +317,6 @@ class StateDiagram:
 
     def show_recommendation(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        print(USER_INFO)
         if 'lon' not in USER_INFO or 'lat' not in USER_INFO:
             self.bot.send_message(message.from_user.id,
                                   'Я не знаю, где ты находишься',
