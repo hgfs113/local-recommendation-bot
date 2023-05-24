@@ -23,14 +23,14 @@ check_state = state_diagram.StateDiagram(bot, food_recomender, shop_recomender)
 def callback_query(call):
     if call.data.startswith("react"):
         # reccomendation reaction
-        if call.message.id in REC_HIST[call.from_user.id]:
-            place_id = REC_HIST[call.from_user.id][call.message.id]
+        if call.message.id in state_diagram.REC_HIST[call.from_user.id]:
+            place_id = state_diagram.REC_HIST[call.from_user.id][call.message.id]
             CANDIDATES_HOLDER.add_rating(
                     item_id=place_id,
                     rating_good=(call.data == "react_yes")
             )
             bot.answer_callback_query(call.id, "Оценка записана")
-            del REC_HIST[call.from_user.id][call.message.id]
+            del state_diagram.REC_HIST[call.from_user.id][call.message.id]
         else:
             bot.answer_callback_query(call.id, "Вы уже оставили оценку")
 
