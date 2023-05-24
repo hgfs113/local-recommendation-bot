@@ -36,6 +36,12 @@ class ItemId:
     def __eq__(self, other):
         return (self.type == other.type) and (self.id == other.id)
 
+    def __repr__(self):
+        return str(hash(self))
+
+    def __str__(self):
+        return str(hash(self))
+
 
 class Item:
 
@@ -47,12 +53,13 @@ class Item:
     накопленный рейтинг.
     """
 
-    def __init__(self, item_type, name, address, lon, lat):
+    def __init__(self, item_type, name, address, lon, lat, embedding=None):
         self.type = item_type
         self.name = name
         self.address = address
         self.lon = lon
         self.lat = lat
+        self.embedding = embedding
 
         self.item_id = ItemId(self.type.value, hash(name + address))
         self.avg_rating = None
@@ -93,7 +100,8 @@ class RecommendItem(Item):
             item.name,
             item.address,
             item.lon,
-            item.lat)
+            item.lat,
+            item.embedding)
 
 
 def get_address_from_coords(coords):

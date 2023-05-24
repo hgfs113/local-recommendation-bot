@@ -5,6 +5,8 @@ from core import recommender, state_diagram
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
 CANDIDATES_HOLDER = recommender.CandidatesHolder()
+HISTORY_PATH = 'storage/history'
+FEEDBACK_EVENT_PROCESSOR = recommender.FeedbackEventProcessor(HISTORY_PATH)
 
 food_recomender = recommender.FoodRecommender(
     recommender.ItemType.FOOD,
@@ -24,10 +26,16 @@ def callback_query(call):
         if call.message.id in state_diagram.REC_HIST[call.from_user.id]:
             user_id = call.from_user.id
             mess_id = call.message.id
-            place_id = state_diagram.REC_HIST[user_id][mess_id]
+            item_id = state_diagram.REC_HIST[user_id][mess_id]
+            rating_good = 1 * (call.data == "react_yes")
             CANDIDATES_HOLDER.add_rating(
-                    item_id=place_id,
+                    item_id=item_id,
                     rating_good=(call.data == "react_yes")
+            )
+            FEEDBACK_EVENT_PROCESSOR.write_user_item_rating(
+                    user_id=user_id,
+                    item_id=item_id,
+                    rating_good=rating_good
             )
             bot.answer_callback_query(call.id, "Оценка записана")
             del state_diagram.REC_HIST[call.from_user.id][call.message.id]
@@ -62,6 +70,6 @@ def get_text_messages(message):
 
 if __name__ == "__main__":
     CANDIDATES_HOLDER.update(
-        food_path='PlacesDatabase/food_places.csv',
-        shop_path='PlacesDatabase/shopping_v1.csv')
+        food_path='PlacesDatabase/food_places',
+        shop_path='PlacesDatabase/shop_places')
     bot.polling(none_stop=True, interval=0)
