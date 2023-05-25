@@ -17,7 +17,7 @@ RECNAME_SHOP = _('Магазины 🛒')
 RECNAME_PARK = _('Парки 🌲')
 RECNAME_THEATER = _('Театры 🎭')
 RECNAME_MUSEUM = _('Музеи 🖼️')
-RECNAME_ALL = _('Всё 🎈')
+# RECNAME_ALL = _('Всё 🎈')
 RECNAME_TO_ITEM_TYPE = {
     RECNAME_FOOD: utils.ItemType.FOOD,
     RECNAME_SHOP: utils.ItemType.SHOP
@@ -44,23 +44,23 @@ class StateDiagram:
                             RECNAME_SHOP,
                             RECNAME_PARK,
                             RECNAME_THEATER,
-                            RECNAME_MUSEUM,
-                            RECNAME_ALL]
+                            RECNAME_MUSEUM]
         self.init_markups()
 
     def init_markups(self):
         self.base_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         self.base_markup.add(*(types.KeyboardButton(cmd) for cmd in self.bc))
 
-        self.rec_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        self.rec_markup.add(*(
-            types.KeyboardButton(rec_type) for rec_type in self.recom_types
-        ))
-
         self.check_rec_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn_var = types.KeyboardButton('Посмотреть варианты 🤔')
         btn_back = types.KeyboardButton('Вернуться назад 🛬')
         self.check_rec_markup.add(btn_var, btn_back)
+
+        self.rec_markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        self.rec_markup.add(*(
+            types.KeyboardButton(rec_type) for rec_type in self.recom_types
+        ))
+        self.rec_markup.add(btn_back)
 
         self.loc_mark = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn_address = types.KeyboardButton(text='Указать адрес 🗺️')
@@ -86,6 +86,9 @@ class StateDiagram:
 
         elif message.text == 'Наш репозиторий 👻':
             self.usual_message(message, "link")
+
+        elif message.text == '/clear_history':
+            self.clear_history(message)
 
         elif message.text in ['СТАРТ 🚀', '/add_geo']:
             self.initialize_user(message)
@@ -151,12 +154,21 @@ class StateDiagram:
                               '❓ Что вас интересует?',
                               reply_markup=self.base_markup)
 
+    def clear_history(self, message):
+        USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
+        if "state" in USER_INFO:
+#             PRINT HERE
+            pass
+            
+
     def usual_message(self, message, what_message):
         if what_message == "how_use":
             how_to_msg = r'Воспользуйтесь командой /add\_geo, ' \
                 r'чтобы добавить ваше местонахождение\. ' \
                 r'Воспользуйтесь командой /back, ' \
-                r'чтобы вернуться на команду назад'
+                r'чтобы вернуться на команду назад\. '\
+                r'Воспользуйтесь командой /clear_history, '
+                r'чтобы очистить историю\.'
             self.bot.send_message(message.from_user.id,
                                   how_to_msg,
                                   parse_mode='MarkdownV2')
@@ -217,6 +229,7 @@ class StateDiagram:
                                       reply_markup=self.rec_markup,
                                       parse_mode='Markdown')
             elif message.text == 'Указать адрес 🗺️':
+                USER_INFO["state"] = "INITIALIZE_USER"
                 mess = 'Введите адрес в формате x.x, x.x (для координат)'
                 ' или в формате Город, Улица, Номер дома (через запятую)'
                 self.bot.send_message(message.from_user.id,

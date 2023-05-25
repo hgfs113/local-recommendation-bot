@@ -58,7 +58,7 @@ def start(message):
                      reply_markup=markup)
 
 
-@bot.message_handler(commands=['add_geo', 'back'])
+@bot.message_handler(commands=['add_geo', 'back', 'clear_history'])
 def add_geo(message):
     check_state.bot_answer(message)
 
