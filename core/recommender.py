@@ -177,7 +177,7 @@ class FeedbackEventProcessor():
         return item_id_to_rating
 
     def clear_user_history(self, user_id):
-        """Удаление пользовательской истории"""
+        """Удаление пользовательской истории."""
         user_history_path = self.history_path + '_' + str(user_id)
         if os.path.exists(user_history_path):
             os.remove(user_history_path)
