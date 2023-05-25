@@ -37,10 +37,10 @@ class ItemId:
         return (self.type == other.type) and (self.id == other.id)
 
     def __repr__(self):
-        return str(hash(self))
+        return str(self.__hash__())
 
     def __str__(self):
-        return str(hash(self))
+        return str(self.__hash__())
 
 
 class Item:
@@ -177,9 +177,8 @@ def dist_to_str(dist):
     return f'{km} км {m} м'
 
 
-def stream_blender_diego(USER_INFO, recommended_items,
-                         blender_limit, temperature,
-                         max_iter=10000):
+def stream_blender_diego(USER_INFO, recommended_items, blender_limit,
+                         temperature=1, max_iter=10000):
     user_coords = np.array([[USER_INFO['lon'], USER_INFO['lat']]])
     item_coords = []
     for item in recommended_items:

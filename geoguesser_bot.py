@@ -5,15 +5,20 @@ from core import recommender, state_diagram
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
 CANDIDATES_HOLDER = recommender.CandidatesHolder()
+EMBEDDINGS_HOLDER = recommender.EmbeddingsHolder()
 HISTORY_PATH = 'storage/history'
 FEEDBACK_EVENT_PROCESSOR = recommender.FeedbackEventProcessor(HISTORY_PATH)
 
-food_recomender = recommender.FoodRecommender(
+food_recomender = recommender.Recommender(
     recommender.ItemType.FOOD,
-    CANDIDATES_HOLDER)
-shop_recomender = recommender.ShopRecommender(
+    CANDIDATES_HOLDER,
+    EMBEDDINGS_HOLDER,
+    FEEDBACK_EVENT_PROCESSOR)
+shop_recomender = recommender.Recommender(
     recommender.ItemType.SHOP,
-    CANDIDATES_HOLDER)
+    CANDIDATES_HOLDER,
+    EMBEDDINGS_HOLDER,
+    FEEDBACK_EVENT_PROCESSOR)
 
 bot = TeleBot(token=TOKEN)
 check_state = state_diagram.StateDiagram(bot, food_recomender, shop_recomender)
@@ -69,7 +74,12 @@ def get_text_messages(message):
 
 
 if __name__ == "__main__":
+    food_path = 'PlacesDatabase/food_places'
+    shop_path = 'PlacesDatabase/shop_places'
     CANDIDATES_HOLDER.update(
-        food_path='PlacesDatabase/food_places',
-        shop_path='PlacesDatabase/shop_places')
+        food_path=food_path,
+        shop_path=shop_path)
+    EMBEDDINGS_HOLDER.update(
+        food_path=food_path,
+        shop_path=shop_path)
     bot.polling(none_stop=True, interval=0)

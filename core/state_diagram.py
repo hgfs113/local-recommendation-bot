@@ -317,6 +317,7 @@ class StateDiagram:
 
     def show_recommendation(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
+        USER_INFO['user_id'] = message.from_user.id
         if 'lon' not in USER_INFO or 'lat' not in USER_INFO:
             self.bot.send_message(message.from_user.id,
                                   'Я не знаю, где ты находишься',
@@ -340,7 +341,8 @@ class StateDiagram:
             if recommender is not None:
                 recommended_items = recommender.recommend(
                     USER_INFO,
-                    recommend_limit=20,
+                    light_recommender_limit=200,
+                    heavy_recommender_limit=20,
                     blender_limit=5)
                 self.write_recommendations(recommended_items, message)
 
