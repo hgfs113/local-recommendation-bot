@@ -341,6 +341,7 @@ class StateDiagram:
             if recommender is not None:
                 recommended_items = recommender.recommend(
                     USER_INFO,
+                    user_history_limit=20,
                     light_recommender_limit=200,
                     heavy_recommender_limit=20,
                     blender_limit=5)

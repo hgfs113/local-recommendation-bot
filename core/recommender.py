@@ -129,23 +129,44 @@ class FeedbackEventProcessor():
     """
 
     def __init__(self, history_path):
+        """Сохраняет путь до папки с историями пользователей."""
         self.history_path = history_path
 
     def write_user_item_rating(self, user_id, item_id, rating_good):
+        """
+        Записывает оценку пользователя элементу рекомендаций.
+
+        Запись происходит в формате `type,id,rating`,
+        где type и id - есть поля ItemId, а rating - плюс или минус единица
+        в зависимости от оценки пользователя.
+        """
         user_history_path = self.history_path + '_' + str(user_id)
         mode = 'a' if os.path.exists(user_history_path) else 'w'
         rating = 1.0 if rating_good else -1.0
         with open(user_history_path, mode) as f:
             f.write(f'{item_id.type},{item_id.id},{rating}\n')
 
-    def read_user_history(self, user_id):
+    def read_user_history(self, user_id, limit=None):
+        """
+        Читаем историю оценок пользователя.
+
+        Возвращает словарь item_id_to_rating, который содержит последние
+        limit оценок пользователя. Если limit не задан, то возвращает
+        всю историю без ограничений.
+        """
         user_history_path = self.history_path + '_' + str(user_id)
         if not os.path.exists(user_history_path):
             return None
+
         item_id_to_rating = {}
         with open(user_history_path, 'r') as f:
             history = f.read()
-        for row in history.split('\n'):
+
+        events = history.split('\n')
+        if limit is not None:
+            events = events[len(events) - limit:]
+
+        for row in events:
             s = row.split(',')
             try:
                 type, id, rating = int(s[0]), int(s[1]), float(s[2])
@@ -184,13 +205,33 @@ class Recommender():
         self.embeddings_holder = embeddings_holder
         self.feedback_event_processor = feedback_event_processor
 
+    def before_recommend(self, USER_INFO, user_history_limit=None):
+        """
+        Подготовка к вызову рекомендера.
+
+        Метод для подготовки данных перед вызовом рекомендера
+        для его корректной работы:
+
+        Создаёт множество recommend_history, если история пользователя
+        отсутсвует. Записывает в item_id_to_rating последние user_history_limit
+        оценок пользователя. Если user_history_limit не задано, то запишет
+        всю историю пользователя.
+        """
+        if 'recommend_history' not in USER_INFO:
+            USER_INFO['recommend_history'] = set()
+        user_id = USER_INFO['user_id']
+        read_user_history = self.feedback_event_processor.read_user_history
+        item_id_to_rating = read_user_history(user_id, user_history_limit)
+        USER_INFO['item_id_to_rating'] = item_id_to_rating
+
     def get_light_recommender_items(self, USER_INFO, candidates,
                                     coords, limit):
         """
         Лёгкий рекомендер.
 
         Возвращает список из limit рекомендательных карточек,
-        которые затем будут обработаны в тяжёлый рекомендер.
+        отранжированных по расстоянию, которые затем будут переданы
+        в тяжёлый рекомендер.
         """
         items_with_dist = get_nearest(USER_INFO, candidates, coords, limit)
         recommended_items = []
@@ -207,7 +248,9 @@ class Recommender():
         Тяжёлый рекомендер.
 
         Возвращает список из limit рекомендательных карточек,
-        которые затем будут обработаны в stream_blender.
+        отранжированных по косиносному расстоянию пользовательских
+        и айтемных эмбеддингов Диего. Результат тяжёлого рекомендера
+        будет обработан в stream_blender.
         """
         item_id_to_rating = USER_INFO['item_id_to_rating']
         if item_id_to_rating is None:
@@ -241,24 +284,12 @@ class Recommender():
                 item_to_score[item] = np.dot(user_embedding, embedding)
             else:
                 item_to_score[item] = -1
+
         items_score_sorted = sorted(item_to_score.items(), key=lambda x: -x[1])
         items_sorted = [k for k, v in items_score_sorted]
         heavy_recommender_items = items_sorted[:limit]
+
         return heavy_recommender_items
-
-    def before_recommend(self, USER_INFO):
-        """
-        Подготовка к вызову рекомендера.
-
-        Метод для подготовки данных перед вызовом рекомендера
-        для его корректной работы.
-        """
-        if 'recommend_history' not in USER_INFO:
-            USER_INFO['recommend_history'] = set()
-        user_id = USER_INFO['user_id']
-        read_user_history = self.feedback_event_processor.read_user_history
-        item_id_to_rating = read_user_history(user_id)
-        USER_INFO['item_id_to_rating'] = item_id_to_rating
 
     def stream_blender(self, USER_INFO, recommended_items,
                        blender_limit=5, mode='Diego', temperature=1):
@@ -289,15 +320,16 @@ class Recommender():
         stream_items = sorted(stream_items, key=lambda item: item.dist)
         return stream_items
 
-    def recommend(self, USER_INFO, light_recommender_limit=200,
-                  heavy_recommender_limit=20, blender_limit=5):
+    def recommend(self, USER_INFO, user_history_limit=None,
+                  light_recommender_limit=200, heavy_recommender_limit=20,
+                  blender_limit=5):
         """
         Основная функция рекомендера.
 
         Рекомендер возвращает список из limit карточек рекомендаций,
         которые затем будут обработаны в большом блендере
         """
-        self.before_recommend(USER_INFO)
+        self.before_recommend(USER_INFO, user_history_limit)
 
         lon, lat = USER_INFO['lon'], USER_INFO['lat']
         item_type = self.item_type
@@ -322,6 +354,6 @@ class Recommender():
         stream_items = self.stream_blender(
             USER_INFO,
             recommended_items,
-            blender_limit,
-            mode='Diego')
+            blender_limit)
+
         return stream_items

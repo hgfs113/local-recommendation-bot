@@ -25,6 +25,14 @@ core.utils.Item
 ----------------------------------------------
 .. autoclass:: core.utils.Item
 
+core.utils.ItemType
+----------------------------------------------
+.. autoclass:: core.utils.ItemType
+
+core.utils.ItemId
+----------------------------------------------
+.. autoclass:: core.utils.ItemId
+
 core.utils.RecommendItem
 ----------------------------------------------
 .. autoclass:: core.utils.RecommendItem
@@ -37,6 +45,11 @@ core.recommender.CandidatesHolder
 core.recommender.EmbeddingsHolder
 ----------------------------------------------
 .. autoclass:: core.recommender.EmbeddingsHolder
+   :members:
+
+core.recommender.FeedbackEventProcessor
+----------------------------------------------
+.. autoclass:: core.recommender.FeedbackEventProcessor
    :members:
 
 core.recommender.Recommender
