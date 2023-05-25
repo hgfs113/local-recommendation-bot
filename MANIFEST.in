@@ -1,0 +1,7 @@
+recursive-include core *
+recursive-include tests *
+recursive-include doc *
+recursive-include PlacesDatabase *
+include *.ipynb
+include *.py
+include *.md

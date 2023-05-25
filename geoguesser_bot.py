@@ -73,7 +73,7 @@ def get_text_messages(message):
     check_state.bot_answer(message)
 
 
-if __name__ == "__main__":
+def main():
     food_path = 'PlacesDatabase/food_places'
     shop_path = 'PlacesDatabase/shop_places'
     CANDIDATES_HOLDER.update(

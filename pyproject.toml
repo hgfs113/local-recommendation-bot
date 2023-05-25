@@ -1,0 +1,41 @@
+[project]
+name = "local-recommendation-bot"
+version = "2023.05.25"
+description = "Bot with opportunity of geo-recommendations (Exam project for PythonDevelopment2023 course)."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT License"}
+keywords = ["geo", "project", "recommendation"]
+authors = [
+  {name = "Бикметов Данил Наильевич", email = "some_email@example.com"},
+  {name = "Ушакова Анна Евгеньевна", email = "some_email@example.com"},
+  {name = "Сумина Евгения Александровна", email = "eugenia.sumina@yandex.ru"},
+  {name = "Попов Дмитрий Николаевич", email = "some_email@example.com"}
+]
+maintainers = [
+  {name = "Сумина Евгения Александровна", email = "eugenia.sumina@yandex.ru"}
+]
+classifiers = [
+  "Development Status :: 1 - Beta",
+  "Programming Language :: Python"
+]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = "requirements.txt" }
+
+[project.urls]
+Repository = "https://github.com/hgfs113/local-recommendation-bot"
+
+[project.gui-scripts]
+DateTime = "geoguesser_bot:main"
+
+[build-system]
+requires = ["setuptools", "telebot==0.0.5", "pytest==7.3.1", "pandas==2.0.1", "scipy==1.10.0"]
+build-backend = "setuptools.build_meta"
+
+[bdist_wheel]
+universal = 1
+
+[tool.setuptools]
+packages = ["core", "doc", "PlacesDatabase"]
