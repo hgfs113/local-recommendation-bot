@@ -111,7 +111,8 @@ class EmbeddingsHolder:
                 row.address,
                 row.lon,
                 row.lat)
-            item_id_to_embedding[item.item_id] = embeddings[i]
+            embedding = embeddings[i] / np.linalg.norm(embeddings[i])
+            item_id_to_embedding[item.item_id] = embedding
         return item_id_to_embedding
 
 
@@ -145,9 +146,9 @@ class FeedbackEventProcessor():
         with open(user_history_path, 'r') as f:
             history = f.read()
         for row in history.split('\n'):
-            splitted = row.split(',')
+            s = row.split(',')
             try:
-                type, id, rating = int(splitted[0]), int(splitted[1]), float(splitted[2])
+                type, id, rating = int(s[0]), int(s[1]), float(s[2])
                 item_id = ItemId(type, id)
                 item_id_to_rating[item_id] = rating
             except:
@@ -216,8 +217,6 @@ class Recommender():
 
         user_embedding = None
         for item_id, rating in item_id_to_rating.items():
-            print(item_id)
-            print('*'*20)
             if item_id not in embeddings:
                 print('WARNING: item was not found in embeddings holder')
                 continue
@@ -234,13 +233,16 @@ class Recommender():
             return heavy_recommender_items[:limit]
 
         user_embedding /= np.linalg.norm(user_embedding)
-
-        print(user_embedding)
-        print(np.linalg.norm(user_embedding))
-
-        heavy_recommender_items = light_recommender_items
-        np.random.shuffle(heavy_recommender_items)
-        return heavy_recommender_items[:limit]
+        item_to_score = {}
+        for item in light_recommender_items:
+            item_id = item.item_id
+            if item_id in embeddings:
+                item_to_score[item] = np.dot(user_embedding, embeddings[item_id])
+            else:
+                item_to_score[item] = -1
+        items_sorted = [k for k, v in sorted(item_to_score.items(), key=lambda x: -x[1])]
+        heavy_recommender_items = items_sorted[:limit]
+        return heavy_recommender_items
 
     def before_recommend(self, USER_INFO):
         """
