@@ -167,8 +167,8 @@ class StateDiagram:
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
         if "state" in USER_INFO:
             if "user_id" in USER_INFO:
-                self.feedback_event_processor.clear_user_history(
-                    USER_INFO["user_id"])
+                user_id = USER_INFO["user_id"]
+                self.feedback_event_processor.clear_user_history(user_id)
             else:
                 print('WARNING: user id not in USER_INFO')
         else:
