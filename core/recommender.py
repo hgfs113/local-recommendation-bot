@@ -1,10 +1,10 @@
 import os
 import pickle
+import numpy as np
 import pandas as pd
-from abc import ABC, abstractmethod
-from .utils import ItemType, Item, RecommendItem
+from .utils import ItemType, Item, ItemId, RecommendItem
 from .utils import validate_point, get_nearest
-from .utils import stream_blender_diego, stream_blender_embedding
+from .utils import stream_blender_diego
 
 
 class CandidatesHolder:
@@ -43,7 +43,7 @@ class CandidatesHolder:
         with open(path + '.pb', 'rb') as f:
             embeddings = pickle.load(f)
         df = pd.read_csv(path + '.csv')
-        candidates = {}
+        item_id_to_candidate = {}
         for i, row in enumerate(df.itertuples()):
             lon, lat = row.lon, row.lat
             if validate_point((lon, lat)):
@@ -54,8 +54,8 @@ class CandidatesHolder:
                     lon,
                     lat,
                     embeddings[i])
-                candidates[item.item_id] = item
-        return candidates
+                item_id_to_candidate[item.item_id] = item
+        return item_id_to_candidate
 
     def add_rating(self, *, item_id=None, rating_good=True):
         for item_type, candidates in self.type_to_candidates.items():
@@ -65,6 +65,54 @@ class CandidatesHolder:
                     1 * rating_good
                 )
                 return
+
+
+class EmbeddingsHolder:
+
+    """
+    Хранилище эмбеддингов всех кандидатов.
+
+    В класс можно передать уже созданный словарь type_to_embeddings,
+    либо оставить поле пустым, после чего будет автоматически создан
+    словарь type_to_embeddings для всех доступных на текущий момент
+    видов рекомендаций.
+
+    Метод update обновит информацию о всех доступных в базе данных эмбеддингах,
+    то есть перезапишет их для дальнейшего использования роекомендером.
+    """
+
+    def __init__(self, type_to_embeddings=None):
+        if type_to_embeddings is not None:
+            self.type_to_embeddings = type_to_embeddings
+        else:
+            self.type_to_embeddings = {
+                ItemType.FOOD: dict(),
+                ItemType.SHOP: dict()
+            }
+
+    def get_embeddings_by_type(self, item_type):
+        return self.type_to_embeddings[item_type]
+
+    def update(self, food_path, shop_path):
+        self.type_to_embeddings[ItemType.FOOD] =\
+            self.read_embeddings_by_type(ItemType.FOOD, food_path)
+        self.type_to_embeddings[ItemType.SHOP] =\
+            self.read_embeddings_by_type(ItemType.FOOD, shop_path)
+
+    def read_embeddings_by_type(self, item_type, path):
+        with open(path + '.pb', 'rb') as f:
+            embeddings = pickle.load(f)
+        df = pd.read_csv(path + '.csv')
+        item_id_to_embedding = {}
+        for i, row in enumerate(df.itertuples()):
+            item = Item(
+                item_type,
+                row.name,
+                row.address,
+                row.lon,
+                row.lat)
+            item_id_to_embedding[item.item_id] = embeddings[i]
+        return item_id_to_embedding
 
 
 class FeedbackEventProcessor():
@@ -87,7 +135,7 @@ class FeedbackEventProcessor():
         mode = 'a' if os.path.exists(user_history_path) else 'w'
         rating = 1.0 if rating_good else -1.0
         with open(user_history_path, mode) as f:
-            f.write(f'{item_id},{rating}\n')
+            f.write(f'{item_id.type},{item_id.id},{rating}\n')
 
     def read_user_history(self, user_id):
         user_history_path = self.history_path + '_' + str(user_id)
@@ -99,30 +147,32 @@ class FeedbackEventProcessor():
         for row in history.split('\n'):
             splitted = row.split(',')
             try:
-                item_id, rating = int(splitted[0]), float(splitted[1])
+                type, id, rating = int(splitted[0]), int(splitted[1]), float(splitted[2])
+                item_id = ItemId(type, id)
                 item_id_to_rating[item_id] = rating
             except:
                 continue
         return item_id_to_rating
 
 
-class Recommender(ABC):
+class Recommender():
 
     """
-    Абстрактный класс рекомендера с единой для всех вертикалей логикой.
-
-    В наследнике требуется переопределить некоторые абстрактные функции,
-    играющие ключевую роль в рекомендациях.
+    Основной класс рекомендера с единой для всех вертикалей логикой.
     """
 
-    def __init__(self, item_type,
-                 candidates_holder,
-                 feedback_event_processor):
+    def __init__(self, item_type, candidates_holder,
+                 embeddings_holder=None, feedback_event_processor=None):
         """
-        Содержит тип рекоммендера, хранителя кандидатов и обработчик оценок.
+        Содержит тип рекоммендера, хранителя кандидатов,
+        хранителя эмбеддингов и обработчик оценок.
 
         Кандидаты в рекомендере берутся из candidates_holder по item_type.
         После вызова метода update() в candidates_holder все кандидаты
+        будут обновлены в рекомендере автоматически.
+
+        Эмбеддинги в рекомендере берутся из embeddings_holder по item_type.
+        После вызова метода update() в embeddings_holder все эмбеддинги
         будут обновлены в рекомендере автоматически.
 
         Обработчик оценок используется для считывания оценок пользователя
@@ -130,18 +180,67 @@ class Recommender(ABC):
         """
         self.item_type = item_type
         self.candidates_holder = candidates_holder
+        self.embeddings_holder = embeddings_holder
         self.feedback_event_processor = feedback_event_processor
 
-    @abstractmethod
     def get_light_recommender_items(self, USER_INFO, candidates,
                                     coords, limit):
         """
         Лёгкий рекомендер.
 
         Возвращает список из limit рекомендательных карточек,
+        которые затем будут обработаны в тяжёлый рекомендер.
+        """
+        items_with_dist = get_nearest(USER_INFO, candidates, coords, limit)
+        recommended_items = []
+
+        for (item, dist) in items_with_dist:
+            recommended_item = RecommendItem(item, dist)
+            recommended_items.append(recommended_item)
+
+        return recommended_items
+
+    def get_heavy_recommender_items(self, USER_INFO, light_recommender_items,
+                                    embeddings, limit):
+        """
+        Тяжёлый рекомендер.
+
+        Возвращает список из limit рекомендательных карточек,
         которые затем будут обработаны в stream_blender.
         """
-        pass
+        item_id_to_rating = USER_INFO['item_id_to_rating']
+        if item_id_to_rating is None:
+            heavy_recommender_items = light_recommender_items
+            np.random.shuffle(heavy_recommender_items)
+            return heavy_recommender_items[:limit]
+
+        user_embedding = None
+        for item_id, rating in item_id_to_rating.items():
+            print(item_id)
+            print('*'*20)
+            if item_id not in embeddings:
+                print('WARNING: item was not found in embeddings holder')
+                continue
+            user_item_embedding = rating * embeddings[item_id]
+            if user_embedding is None:
+                user_embedding = user_item_embedding
+            else:
+                user_embedding += user_item_embedding
+        
+        if user_embedding is None:
+            print('WARNING: user embedding is None after feedback processing')
+            heavy_recommender_items = light_recommender_items
+            np.random.shuffle(heavy_recommender_items)
+            return heavy_recommender_items[:limit]
+
+        user_embedding /= np.linalg.norm(user_embedding)
+
+        print(user_embedding)
+        print(np.linalg.norm(user_embedding))
+
+        heavy_recommender_items = light_recommender_items
+        np.random.shuffle(heavy_recommender_items)
+        return heavy_recommender_items[:limit]
 
     def before_recommend(self, USER_INFO):
         """
@@ -173,12 +272,7 @@ class Recommender(ABC):
         if blender_limit > len(recommended_items):
             blender_limit = len(recommended_items)
 
-        if mode == 'Embedding':
-            stream_items = stream_blender_embedding(
-                USER_INFO,
-                recommended_items,
-                blender_limit)
-        elif mode == 'Diego':
+        if mode == 'Diego':
             stream_items = stream_blender_diego(
                 USER_INFO,
                 recommended_items,
@@ -191,7 +285,8 @@ class Recommender(ABC):
         stream_items = sorted(stream_items, key=lambda item: item.dist)
         return stream_items
 
-    def recommend(self, USER_INFO, recommend_limit=20, blender_limit=5):
+    def recommend(self, USER_INFO, light_recommender_limit=200,
+                  heavy_recommender_limit=20, blender_limit=5):
         """
         Основная функция рекомендера.
 
@@ -203,11 +298,18 @@ class Recommender(ABC):
         lon, lat = USER_INFO['lon'], USER_INFO['lat']
         item_type = self.item_type
         candidates = self.candidates_holder.get_candidates_by_type(item_type)
-        recommended_items = self.get_light_recommender_items(
+        light_recommended_items = self.get_light_recommender_items(
             USER_INFO,
             candidates,
             (lon, lat),
-            recommend_limit)
+            light_recommender_limit)
+
+        embeddings = self.embeddings_holder.get_embeddings_by_type(item_type)
+        recommended_items = self.get_heavy_recommender_items(
+            USER_INFO,
+            light_recommended_items,
+            embeddings,
+            heavy_recommender_limit)
 
         for recommended_item in recommended_items:
             item_id = recommended_item.item_id
@@ -217,44 +319,5 @@ class Recommender(ABC):
             USER_INFO,
             recommended_items,
             blender_limit,
-            mode='Embedding')
+            mode='Diego')
         return stream_items
-
-
-class FoodRecommender(Recommender):
-
-    """Рекомендер ресторанов."""
-
-    def get_light_recommender_items(self, USER_INFO, candidates,
-                                    coords, limit):
-        """Возвращает limit ближайших ресторанов."""
-        items_with_dist = get_nearest(USER_INFO, candidates, coords, limit)
-        recommended_items = []
-
-        for (item, dist) in items_with_dist:
-            recommended_item = RecommendItem(item, dist)
-            recommended_items.append(recommended_item)
-
-        return recommended_items
-
-
-class ShopRecommender(Recommender):
-
-    """Рекомендер магазинов."""
-
-    def get_light_recommender_items(self, USER_INFO, candidates,
-                                    coords, limit):
-        """
-        Возвращает limit ближайших ресторанов.
-
-        Пока логика light recommender такая же, как и у FoodRecommender.
-        Но это временно.
-        """
-        items_with_dist = get_nearest(USER_INFO, candidates, coords, limit)
-        recommended_items = []
-
-        for (item, dist) in items_with_dist:
-            recommended_item = RecommendItem(item, dist)
-            recommended_items.append(recommended_item)
-
-        return recommended_items

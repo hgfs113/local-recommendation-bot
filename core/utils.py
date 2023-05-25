@@ -37,10 +37,10 @@ class ItemId:
         return (self.type == other.type) and (self.id == other.id)
 
     def __repr__(self):
-        return str(hash(self))
+        return str(self.__hash__())
 
     def __str__(self):
-        return str(hash(self))
+        return str(self.__hash__())
 
 
 class Item:
@@ -175,12 +175,6 @@ def dist_to_str(dist):
     elif m == 0:
         return f'{km} км'
     return f'{km} км {m} м'
-
-
-def stream_blender_embedding(USER_INFO, recommended_items, blender_limit):
-    print(USER_INFO['item_id_to_rating'])
-    blended_items = np.random.shuffle(recommended_items)
-    return blended_items[:blender_limit]
 
 
 def stream_blender_diego(USER_INFO, recommended_items, blender_limit,

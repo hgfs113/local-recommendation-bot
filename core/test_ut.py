@@ -1,5 +1,5 @@
 from .utils import get_nearest, ItemType, Item, RecommendItem
-from .recommender import CandidatesHolder, FoodRecommender
+from .recommender import CandidatesHolder, Recommender
 import io
 
 
@@ -56,7 +56,7 @@ def test_Recommender_stream_blender():
     ]
 
     # Тестируется произвольный дочерний класс абстрактного Recommender
-    recommender = FoodRecommender(ItemType.FOOD, candidates_holder)
+    recommender = Recommender(ItemType.FOOD, candidates_holder)
 
     # Тестируем случай, когда blender_limit больше или равен
     # длине recommended_items
@@ -116,7 +116,7 @@ def test_item_rating():
 
     CANDIDATES_HOLDER = CandidatesHolder()
 
-    food_recomender = FoodRecommender(
+    food_recomender = Recommender(
         ItemType.FOOD,
         CANDIDATES_HOLDER)
 
