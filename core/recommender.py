@@ -151,22 +151,22 @@ class FeedbackEventProcessor():
                 type, id, rating = int(s[0]), int(s[1]), float(s[2])
                 item_id = ItemId(type, id)
                 item_id_to_rating[item_id] = rating
-            except:
+            except Exception:
                 continue
         return item_id_to_rating
 
 
 class Recommender():
 
-    """
-    Основной класс рекомендера с единой для всех вертикалей логикой.
-    """
+    """Основной класс рекомендера с единой для всех вертикалей логикой."""
 
     def __init__(self, item_type, candidates_holder,
                  embeddings_holder=None, feedback_event_processor=None):
         """
-        Содержит тип рекоммендера, хранителя кандидатов,
-        хранителя эмбеддингов и обработчик оценок.
+        Содержит тип рекоммендера и хранителя кандидатов.
+        
+        Также содержит хранителя эмбеддингов и обработчик оценок, которые
+        не являются обязательными.
 
         Кандидаты в рекомендере берутся из candidates_holder по item_type.
         После вызова метода update() в candidates_holder все кандидаты
@@ -225,7 +225,7 @@ class Recommender():
                 user_embedding = user_item_embedding
             else:
                 user_embedding += user_item_embedding
-        
+
         if user_embedding is None:
             print('WARNING: user embedding is None after feedback processing')
             heavy_recommender_items = light_recommender_items
@@ -237,10 +237,12 @@ class Recommender():
         for item in light_recommender_items:
             item_id = item.item_id
             if item_id in embeddings:
-                item_to_score[item] = np.dot(user_embedding, embeddings[item_id])
+                embedding = embeddings[item_id]
+                item_to_score[item] = np.dot(user_embedding, embedding)
             else:
                 item_to_score[item] = -1
-        items_sorted = [k for k, v in sorted(item_to_score.items(), key=lambda x: -x[1])]
+        items_score_sorted = sorted(item_to_score.items(), key=lambda x: -x[1])
+        items_sorted = [k for k, v in items_score_sorted]
         heavy_recommender_items = items_sorted[:limit]
         return heavy_recommender_items
 

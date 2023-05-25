@@ -74,8 +74,8 @@ def get_text_messages(message):
 
 
 if __name__ == "__main__":
-    food_path='PlacesDatabase/food_places'
-    shop_path='PlacesDatabase/shop_places'
+    food_path = 'PlacesDatabase/food_places'
+    shop_path = 'PlacesDatabase/shop_places'
     CANDIDATES_HOLDER.update(
         food_path=food_path,
         shop_path=shop_path)
