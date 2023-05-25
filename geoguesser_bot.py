@@ -21,7 +21,9 @@ shop_recomender = recommender.Recommender(
     FEEDBACK_EVENT_PROCESSOR)
 
 bot = TeleBot(token=TOKEN)
-check_state = state_diagram.StateDiagram(bot, food_recomender, shop_recomender)
+check_state = state_diagram.StateDiagram(
+    bot, FEEDBACK_EVENT_PROCESSOR,
+    food_recomender, shop_recomender)
 
 
 @bot.callback_query_handler(func=lambda call: True)

@@ -29,7 +29,9 @@ REC_HIST = defaultdict(dict)
 
 
 class StateDiagram:
-    def __init__(self, bot, food_recomender, shop_recomender):
+    def __init__(self, bot, feedback_event_processor,
+                 food_recomender, shop_recomender):
+        self.feedback_event_processor = feedback_event_processor
         self.bot = bot
         self.food_recomender = food_recomender
         self.shop_recomender = shop_recomender
@@ -157,9 +159,13 @@ class StateDiagram:
     def clear_history(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
         if "state" in USER_INFO:
-#             PRINT HERE
-            pass
-            
+            if "user_id" in USER_INFO:
+                self.feedback_event_processor.clear_user_history(
+                    USER_INFO["user_id"])
+            else:
+                print('WARNING: user id not in USER_INFO')
+        else:
+            print('WARNING: state not in USER_INFO')
 
     def usual_message(self, message, what_message):
         if what_message == "how_use":
@@ -167,7 +173,7 @@ class StateDiagram:
                 r'чтобы добавить ваше местонахождение\. ' \
                 r'Воспользуйтесь командой /back, ' \
                 r'чтобы вернуться на команду назад\. '\
-                r'Воспользуйтесь командой /clear_history, '
+                r'Воспользуйтесь командой /clear_history, '\
                 r'чтобы очистить историю\.'
             self.bot.send_message(message.from_user.id,
                                   how_to_msg,
