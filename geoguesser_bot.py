@@ -85,3 +85,7 @@ def main():
         food_path=food_path,
         shop_path=shop_path)
     bot.polling(none_stop=True, interval=0)
+
+
+if __name__ == '__main__':
+    main()

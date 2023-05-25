@@ -40,6 +40,7 @@ class StateDiagram:
         self.bc = [
             'Как пользоваться ботом? 🤓',
             'СТАРТ 🚀',
+            'Очистить историю 🤐',
             'Наш репозиторий 👻'
         ]
         self.recom_types = [RECNAME_FOOD,
@@ -89,7 +90,7 @@ class StateDiagram:
         elif message.text == 'Наш репозиторий 👻':
             self.usual_message(message, "link")
 
-        elif message.text == '/clear_history':
+        elif message.text == 'Очистить историю 🤐':
             self.clear_history(message)
 
         elif message.text in ['СТАРТ 🚀', '/add_geo']:
@@ -166,6 +167,9 @@ class StateDiagram:
                 print('WARNING: user id not in USER_INFO')
         else:
             print('WARNING: state not in USER_INFO')
+        self.bot.send_message(message.from_user.id,
+                              'Ваша история удалена 😈',
+                              parse_mode='Markdown')
 
     def usual_message(self, message, what_message):
         if what_message == "how_use":
@@ -361,8 +365,8 @@ class StateDiagram:
                 recommended_items = recommender.recommend(
                     USER_INFO,
                     user_history_limit=20,
-                    light_recommender_limit=200,
-                    heavy_recommender_limit=20,
+                    light_recommender_limit=400,
+                    heavy_recommender_limit=15,
                     blender_limit=5)
                 self.write_recommendations(recommended_items, message)
 
