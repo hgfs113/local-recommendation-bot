@@ -34,6 +34,11 @@ core.recommender.CandidatesHolder
 .. autoclass:: core.recommender.CandidatesHolder
    :members:
 
+core.recommender.EmbeddingsHolder
+----------------------------------------------
+.. autoclass:: core.recommender.EmbeddingsHolder
+   :members:
+
 core.recommender.Recommender
 ----------------------------------------------
 .. autoclass:: core.recommender.Recommender
