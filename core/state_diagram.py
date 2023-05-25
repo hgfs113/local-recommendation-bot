@@ -12,6 +12,12 @@ _ = gettext.translation(
 ).gettext
 
 
+BC_HOW = 'Как пользоваться ботом? 🤓'
+BC_START = 'СТАРТ 🚀'
+BC_CLEAR = 'Очистить историю 🤐'
+BC_REPO = 'Наш репозиторий 👻'
+
+
 RECNAME_FOOD = _('Рестораны 🍳')
 RECNAME_SHOP = _('Магазины 🛒')
 RECNAME_PARK = _('Парки 🌲')
@@ -38,10 +44,10 @@ class StateDiagram:
         self.state = None
         self.markup = None
         self.bc = [
-            'Как пользоваться ботом? 🤓',
-            'СТАРТ 🚀',
-            'Очистить историю 🤐',
-            'Наш репозиторий 👻'
+            BC_HOW,
+            BC_START,
+            BC_CLEAR,
+            BC_REPO
         ]
         self.recom_types = [RECNAME_FOOD,
                             RECNAME_SHOP,
@@ -84,16 +90,16 @@ class StateDiagram:
         if message.text == '👋 Поздороваться':
             self.start_interface(message)
 
-        elif message.text == 'Как пользоваться ботом? 🤓':
+        elif message.text == BC_HOW:
             self.usual_message(message, "how_use")
 
-        elif message.text == 'Наш репозиторий 👻':
+        elif message.text == BC_REPO:
             self.usual_message(message, "link")
 
-        elif message.text == 'Очистить историю 🤐':
+        elif message.text == BC_CLEAR:
             self.clear_history(message)
 
-        elif message.text in ['СТАРТ 🚀', '/add_geo']:
+        elif message.text in [BC_START, '/add_geo']:
             self.initialize_user(message)
 
         elif message.text in ['Вернуться назад 🛬', '/back']:
