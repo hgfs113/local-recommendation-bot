@@ -3,7 +3,8 @@ import pickle
 import pandas as pd
 from abc import ABC, abstractmethod
 from .utils import ItemType, Item, RecommendItem
-from .utils import validate_point, get_nearest, stream_blender_diego
+from .utils import validate_point, get_nearest
+from .utils import stream_blender_diego, stream_blender_embedding
 
 
 class CandidatesHolder:
@@ -73,16 +74,36 @@ class FeedbackEventProcessor():
 
     Содержит метод write_user_item_rating(), который пишет
     оценку пользователя в файл history_path.
+
+    Содержит метод read_user_history, который возвращает словарь item_to_rating
+    с историей оценок пользователя, или None, если истории нет.
     """
 
     def __init__(self, history_path):
         self.history_path = history_path
 
     def write_user_item_rating(self, user_id, item_id, rating_good):
-        mode = 'a' if os.path.exists(self.history_path) else 'w'
+        user_history_path = self.history_path + '_' + str(user_id)
+        mode = 'a' if os.path.exists(user_history_path) else 'w'
         rating = 1.0 if rating_good else -1.0
-        with open(self.history_path, mode) as f:
-            f.write(f'{user_id},{item_id},{rating}\n')
+        with open(user_history_path, mode) as f:
+            f.write(f'{item_id},{rating}\n')
+
+    def read_user_history(self, user_id):
+        user_history_path = self.history_path + '_' + str(user_id)
+        if not os.path.exists(user_history_path):
+            return None
+        item_id_to_rating = {}
+        with open(user_history_path, 'r') as f:
+            history = f.read()
+        for row in history.split('\n'):
+            splitted = row.split(',')
+            try:
+                item_id, rating = int(splitted[0]), float(splitted[1])
+                item_id_to_rating[item_id] = rating
+            except:
+                continue
+        return item_id_to_rating
 
 
 class Recommender(ABC):
@@ -94,16 +115,22 @@ class Recommender(ABC):
     играющие ключевую роль в рекомендациях.
     """
 
-    def __init__(self, item_type, candidates_holder):
+    def __init__(self, item_type,
+                 candidates_holder,
+                 feedback_event_processor):
         """
-        Содержит тип рекоммендера и хранителя кандидатов.
+        Содержит тип рекоммендера, хранителя кандидатов и обработчик оценок.
 
         Кандидаты в рекомендере берутся из candidates_holder по item_type.
         После вызова метода update() в candidates_holder все кандидаты
         будут обновлены в рекомендере автоматически.
+
+        Обработчик оценок используется для считывания оценок пользователя
+        из истории непосредственно внутри recommend.
         """
         self.item_type = item_type
         self.candidates_holder = candidates_holder
+        self.feedback_event_processor = feedback_event_processor
 
     @abstractmethod
     def get_light_recommender_items(self, USER_INFO, candidates,
@@ -125,9 +152,13 @@ class Recommender(ABC):
         """
         if 'recommend_history' not in USER_INFO:
             USER_INFO['recommend_history'] = set()
+        user_id = USER_INFO['user_id']
+        read_user_history = self.feedback_event_processor.read_user_history
+        item_id_to_rating = read_user_history(user_id)
+        USER_INFO['item_id_to_rating'] = item_id_to_rating
 
     def stream_blender(self, USER_INFO, recommended_items,
-                       blender_limit=5, mode='Diego', temperature=5):
+                       blender_limit=5, mode='Diego', temperature=1):
         """
         Возвращает финальную пачку рекомендаций с вертикали.
 
@@ -142,7 +173,12 @@ class Recommender(ABC):
         if blender_limit > len(recommended_items):
             blender_limit = len(recommended_items)
 
-        if mode == 'Diego':
+        if mode == 'Embedding':
+            stream_items = stream_blender_embedding(
+                USER_INFO,
+                recommended_items,
+                blender_limit)
+        elif mode == 'Diego':
             stream_items = stream_blender_diego(
                 USER_INFO,
                 recommended_items,
@@ -180,7 +216,8 @@ class Recommender(ABC):
         stream_items = self.stream_blender(
             USER_INFO,
             recommended_items,
-            blender_limit)
+            blender_limit,
+            mode='Embedding')
         return stream_items
 
 

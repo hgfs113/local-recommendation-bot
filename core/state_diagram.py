@@ -317,6 +317,7 @@ class StateDiagram:
 
     def show_recommendation(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
+        USER_INFO['user_id'] = message.from_user.id
         if 'lon' not in USER_INFO or 'lat' not in USER_INFO:
             self.bot.send_message(message.from_user.id,
                                   'Я не знаю, где ты находишься',

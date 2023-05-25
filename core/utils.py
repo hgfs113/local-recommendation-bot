@@ -177,9 +177,14 @@ def dist_to_str(dist):
     return f'{km} км {m} м'
 
 
-def stream_blender_diego(USER_INFO, recommended_items,
-                         blender_limit, temperature,
-                         max_iter=10000):
+def stream_blender_embedding(USER_INFO, recommended_items, blender_limit):
+    print(USER_INFO['item_id_to_rating'])
+    blended_items = np.random.shuffle(recommended_items)
+    return blended_items[:blender_limit]
+
+
+def stream_blender_diego(USER_INFO, recommended_items, blender_limit,
+                         temperature=1, max_iter=10000):
     user_coords = np.array([[USER_INFO['lon'], USER_INFO['lat']]])
     item_coords = []
     for item in recommended_items:

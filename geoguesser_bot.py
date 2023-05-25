@@ -10,10 +10,12 @@ FEEDBACK_EVENT_PROCESSOR = recommender.FeedbackEventProcessor(HISTORY_PATH)
 
 food_recomender = recommender.FoodRecommender(
     recommender.ItemType.FOOD,
-    CANDIDATES_HOLDER)
+    CANDIDATES_HOLDER,
+    FEEDBACK_EVENT_PROCESSOR)
 shop_recomender = recommender.ShopRecommender(
     recommender.ItemType.SHOP,
-    CANDIDATES_HOLDER)
+    CANDIDATES_HOLDER,
+    FEEDBACK_EVENT_PROCESSOR)
 
 bot = TeleBot(token=TOKEN)
 check_state = state_diagram.StateDiagram(bot, food_recomender, shop_recomender)
