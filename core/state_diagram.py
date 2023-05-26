@@ -165,14 +165,11 @@ class StateDiagram:
 
     def clear_history(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        if "state" in USER_INFO:
-            if "user_id" in USER_INFO:
-                user_id = USER_INFO["user_id"]
-                self.feedback_event_processor.clear_user_history(user_id)
-            else:
-                print('WARNING: user id not in USER_INFO')
+        if "state" in USER_INFO and "user_id" in USER_INFO:
+            user_id = USER_INFO["user_id"]
+            self.feedback_event_processor.clear_user_history(user_id)
         else:
-            print('WARNING: state not in USER_INFO')
+            print('WARNING: state or user id not in USER_INFO')
         self.bot.send_message(message.from_user.id,
                               'Ваша история удалена 😈',
                               parse_mode='Markdown')
