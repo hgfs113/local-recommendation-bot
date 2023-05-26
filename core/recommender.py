@@ -142,7 +142,10 @@ class FeedbackEventProcessor():
         где type и id - есть поля ItemId, а rating - плюс или минус единица
         в зависимости от оценки пользователя.
         """
-        user_history_path = os.path.join(self.history_path, "history_" + str(user_id))
+        user_history_path = os.path.join(
+            self.history_path,
+            "history_" + str(user_id)
+        )
         mode = 'a' if os.path.exists(user_history_path) else 'w'
         rating = 1.0 if rating_good else -1.0
         with open(user_history_path, mode) as f:
