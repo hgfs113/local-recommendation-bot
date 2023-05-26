@@ -12,6 +12,12 @@ _ = gettext.translation(
 ).gettext
 
 
+BC_HOW = 'Как пользоваться ботом? 🤓'
+BC_START = 'СТАРТ 🚀'
+BC_CLEAR = 'Очистить историю 🤐'
+BC_REPO = 'Наш репозиторий 👻'
+
+
 RECNAME_FOOD = _('Рестораны 🍳')
 RECNAME_SHOP = _('Магазины 🛒')
 RECNAME_PARK = _('Парки 🌲')
@@ -29,16 +35,19 @@ REC_HIST = defaultdict(dict)
 
 
 class StateDiagram:
-    def __init__(self, bot, food_recomender, shop_recomender):
+    def __init__(self, bot, feedback_event_processor,
+                 food_recomender, shop_recomender):
+        self.feedback_event_processor = feedback_event_processor
         self.bot = bot
         self.food_recomender = food_recomender
         self.shop_recomender = shop_recomender
         self.state = None
         self.markup = None
         self.bc = [
-            'Как пользоваться ботом? 🤓',
-            'СТАРТ 🚀',
-            'Наш репозиторий 👻'
+            BC_HOW,
+            BC_START,
+            BC_CLEAR,
+            BC_REPO
         ]
         self.recom_types = [RECNAME_FOOD,
                             RECNAME_SHOP,
@@ -81,16 +90,16 @@ class StateDiagram:
         if message.text == '👋 Поздороваться':
             self.start_interface(message)
 
-        elif message.text == 'Как пользоваться ботом? 🤓':
+        elif message.text == BC_HOW:
             self.usual_message(message, "how_use")
 
-        elif message.text == 'Наш репозиторий 👻':
+        elif message.text == BC_REPO:
             self.usual_message(message, "link")
 
-        elif message.text == '/clear_history':
+        elif message.text == BC_CLEAR:
             self.clear_history(message)
 
-        elif message.text in ['СТАРТ 🚀', '/add_geo']:
+        elif message.text in [BC_START, '/add_geo']:
             self.initialize_user(message)
 
         elif message.text in ['Вернуться назад 🛬', '/back']:
@@ -156,18 +165,22 @@ class StateDiagram:
 
     def clear_history(self, message):
         USER_INFO = USER_INFO_AGGREGATOR[message.from_user.id]
-        if "state" in USER_INFO:
-#             PRINT HERE
-            pass
-            
+        if "state" in USER_INFO and "user_id" in USER_INFO:
+            user_id = USER_INFO["user_id"]
+            self.feedback_event_processor.clear_user_history(user_id)
+        else:
+            print('WARNING: state or user id not in USER_INFO')
+        self.bot.send_message(message.from_user.id,
+                              'Ваша история удалена 😈',
+                              parse_mode='Markdown')
 
     def usual_message(self, message, what_message):
         if what_message == "how_use":
             how_to_msg = r'Воспользуйтесь командой /add\_geo, ' \
                 r'чтобы добавить ваше местонахождение\. ' \
                 r'Воспользуйтесь командой /back, ' \
-                r'чтобы вернуться на команду назад\. '\
-                r'Воспользуйтесь командой /clear_history, '
+                r'чтобы вернуться на команду назад\. ' \
+                r'Воспользуйтесь командой /clear_history, ' \
                 r'чтобы очистить историю\.'
             self.bot.send_message(message.from_user.id,
                                   how_to_msg,
@@ -355,8 +368,8 @@ class StateDiagram:
                 recommended_items = recommender.recommend(
                     USER_INFO,
                     user_history_limit=20,
-                    light_recommender_limit=200,
-                    heavy_recommender_limit=20,
+                    light_recommender_limit=400,
+                    heavy_recommender_limit=15,
                     blender_limit=5)
                 self.write_recommendations(recommended_items, message)
 
