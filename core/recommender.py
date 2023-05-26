@@ -131,6 +131,8 @@ class FeedbackEventProcessor():
     def __init__(self, history_path):
         """Сохраняет путь до папки с историями пользователей."""
         self.history_path = history_path
+        if not os.path.exists(self.history_path):
+            os.makedirs(self.history_path)
 
     def write_user_item_rating(self, user_id, item_id, rating_good):
         """
@@ -140,7 +142,7 @@ class FeedbackEventProcessor():
         где type и id - есть поля ItemId, а rating - плюс или минус единица
         в зависимости от оценки пользователя.
         """
-        user_history_path = self.history_path + '_' + str(user_id)
+        user_history_path = os.path.join(self.history_path, "history_" + str(user_id))
         mode = 'a' if os.path.exists(user_history_path) else 'w'
         rating = 1.0 if rating_good else -1.0
         with open(user_history_path, mode) as f:
