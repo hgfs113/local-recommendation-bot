@@ -6,7 +6,7 @@ TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
 BOT_USERNAME = '@local_recommendation_bot'
 CANDIDATES_HOLDER = recommender.CandidatesHolder()
 EMBEDDINGS_HOLDER = recommender.EmbeddingsHolder()
-HISTORY_PATH = 'storage/history'
+HISTORY_PATH = 'storage'
 FEEDBACK_EVENT_PROCESSOR = recommender.FeedbackEventProcessor(HISTORY_PATH)
 
 food_recomender = recommender.Recommender(
