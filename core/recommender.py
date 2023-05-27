@@ -53,6 +53,7 @@ class CandidatesHolder:
                     row.address,
                     lon,
                     lat,
+                    row.content,
                     embeddings[i])
                 item_id_to_candidate[item.item_id] = item
         return item_id_to_candidate
@@ -159,7 +160,7 @@ class FeedbackEventProcessor():
         limit оценок пользователя. Если limit не задан, то возвращает
         всю историю без ограничений.
         """
-        user_history_path = self.history_path + '_' + str(user_id)
+        user_history_path = self.history_path + '/history_' + str(user_id)
         if not os.path.exists(user_history_path):
             return None
 
@@ -270,15 +271,24 @@ class Recommender():
             return heavy_recommender_items[:limit]
 
         user_embedding = None
+        item_id_to_candidate = self.candidates_holder.\
+            get_candidates_by_type(self.item_type)
+        content_liked = ''
+        content_disliked = ''
         for item_id, rating in item_id_to_rating.items():
             if item_id not in embeddings:
                 print('WARNING: item was not found in embeddings holder')
                 continue
-            user_item_embedding = rating * embeddings[item_id]
-            if user_embedding is None:
-                user_embedding = user_item_embedding
+            content = item_id_to_candidate[item_id].content + ' '
+            if rating > 0:
+                content_liked += content
             else:
-                user_embedding += user_item_embedding
+                content_disliked += content
+            # user_item_embedding = rating * embeddings[item_id]
+            # if user_embedding is None:
+            #     user_embedding = user_item_embedding
+            # else:
+            #     user_embedding += user_item_embedding
 
         if user_embedding is None:
             print('WARNING: user embedding is None after feedback processing')

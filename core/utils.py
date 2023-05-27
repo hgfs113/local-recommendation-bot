@@ -53,12 +53,14 @@ class Item:
     накопленный рейтинг.
     """
 
-    def __init__(self, item_type, name, address, lon, lat, embedding=None):
+    def __init__(self, item_type, name, address, lon, lat,
+                 content=None, embedding=None):
         self.type = item_type
         self.name = name
         self.address = address
         self.lon = lon
         self.lat = lat
+        self.content = content
         self.embedding = embedding
 
         self.item_id = ItemId(self.type.value, hash(name + address))
