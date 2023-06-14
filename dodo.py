@@ -1,5 +1,6 @@
 import glob
 
+
 def task_gitclean():
     return {
             'actions': ['git clean -Xdf'],
@@ -19,5 +20,11 @@ def task_test():
             'actions': ['pytest core/test_ut.py'],
             'file_dep': glob.glob("*.py"),
             'clean': True,
+           }
+
+def task_wheel():
+    return {
+            'actions': ['pyproject-build -w'],
+            'file_dep': glob.glob("*.py"),
            }
 
