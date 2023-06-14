@@ -7,6 +7,12 @@ def task_gitclean():
            }
 
 
+def task_flake8():
+    return {
+            'actions': ['flake8'],
+           }
+
+
 def task_html():
     return {
             'actions': ['sphinx-build doc _build'],
@@ -22,9 +28,9 @@ def task_test():
             'clean': True,
            }
 
+
 def task_wheel():
     return {
             'actions': ['pyproject-build -w'],
             'file_dep': glob.glob("*.py"),
            }
-
