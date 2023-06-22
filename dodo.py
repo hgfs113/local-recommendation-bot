@@ -1,4 +1,5 @@
 import glob
+from doit.task import clean_targets
 
 
 def task_gitclean():
@@ -18,6 +19,7 @@ def task_html():
             'actions': ['sphinx-build doc _build'],
             'file_dep': glob.glob("*.py"),
             'targets': ['_build/index.html'],
+            'clean': [clean_targets],
            }
 
 

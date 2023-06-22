@@ -3,7 +3,7 @@ name = "local-recommendation-bot"
 version = "2023.05.25"
 description = "Bot with opportunity of geo-recommendations (Exam project for PythonDevelopment2023 course)."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = "<3.11"
 license = {text = "MIT License"}
 keywords = ["geo", "project", "recommendation"]
 authors = [
@@ -27,11 +27,11 @@ dependencies = { file = "requirements.txt" }
 [project.urls]
 Repository = "https://github.com/hgfs113/local-recommendation-bot"
 
-[project.gui-scripts]
-DateTime = "geoguesser_bot:main"
+[project.scripts]
+geoguesser_bot = "geoguesser_bot:main"
 
 [build-system]
-requires = ["setuptools", "pytest","build", "doit",
+requires = ["setuptools", "pytest", "build", "doit",
             "flake8", "pydocstyle", "coverage", "sphinx"]
 build-backend = "setuptools.build_meta"
 
@@ -39,4 +39,4 @@ build-backend = "setuptools.build_meta"
 universal = 1
 
 [tool.setuptools]
-packages = ["core", "doc", "PlacesDatabase"]
+packages = ["geoguesser_bot", "core", "doc", "PlacesDatabase"]
