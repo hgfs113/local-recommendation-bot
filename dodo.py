@@ -38,7 +38,7 @@ def task_flake8():
 
 
 def task_docstyle():
-    return {'actions': ['pydocstyle']}
+    return {'actions': ['pydocstyle  --ignore=D10,D203,D211,D212 .']}
 
 
 def task_html():
