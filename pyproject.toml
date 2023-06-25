@@ -37,6 +37,3 @@ build-backend = "setuptools.build_meta"
 
 [bdist_wheel]
 universal = 1
-
-[tool.setuptools]
-packages = ["geoguesser_bot", "core", "doc", "PlacesDatabase"]
