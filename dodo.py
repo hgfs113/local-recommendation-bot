@@ -1,13 +1,13 @@
 import glob
 from doit.task import clean_targets
-from doit.tools import create_folder
+# from doit.tools import create_folder
 
 
 # def task_pot():
 #     c1 = 'pybabel extract --input-dirs=. --output-file=messages.pot'
 #     return {'actions': [c1],
 #             'file_dep': glob.glob('*.py'),
-#             'targets': ['messages.pot'], }    
+#             'targets': ['messages.pot'], }
 
 
 # def task_locale():
@@ -37,9 +37,13 @@ def task_flake8():
            }
 
 
+def task_docstyle():
+    return {'actions': ['pydocstyle']}
+
+
 def task_html():
     return {
-            'actions': ['sphinx-build doc _build'],
+            'actions': ['sphinx-build src/doc _build'],
             'file_dep': glob.glob("*.py"),
             'targets': ['_build/index.html'],
             'clean': [clean_targets],
@@ -48,15 +52,15 @@ def task_html():
 
 def task_test():
     return {
-            'actions': ['pytest core/test_ut.py'],
+            'actions': ['pytest src/core/test_ut.py'],
             'file_dep': glob.glob("*.py"),
             'clean': True,
            }
 
 
-def task_wheel():
-    return {
-            'actions': ['pyproject-build -w'],
-            'file_dep': glob.glob("*.py"),
-            'task_dep': ['mo'], 
-           }
+# def task_wheel():
+#     return {
+#             'actions': ['pyproject-build -w'],
+#             'file_dep': glob.glob("*.py"),
+#             'task_dep': ['mo'],
+#            }
