@@ -23,6 +23,7 @@ from doit.task import clean_targets
 #     return {'actions': [c1 + c2],
 #             'file_dep': ['locale/en/LC_MESSAGES/messages.po'],
 #             'targets': ['locale/en/LC_MESSAGES/messages.mo'], }
+# 'task_dep': ['mo'],
 
 
 def task_gitclean():
@@ -58,9 +59,8 @@ def task_test():
            }
 
 
-# def task_wheel():
-#     return {
-#             'actions': ['pyproject-build -w'],
-#             'file_dep': glob.glob("*.py"),
-#             'task_dep': ['mo'],
-#            }
+def task_wheel():
+    return {
+            'actions': ['pyproject-build -w'],
+            'file_dep': glob.glob("*.py"),
+           }
