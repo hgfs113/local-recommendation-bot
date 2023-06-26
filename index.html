@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Документация проекта local-recomendation-bot &#8212; документация local-recomendation-bot 0</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="local-recomendation-bot">
+<h1>Документация проекта local-recomendation-bot<a class="headerlink" href="#local-recomendation-bot" title="Permalink to this heading">¶</a></h1>
+<p>local-recomendation-bot это бот для телеграмма, который рекомендует различные категории досуга на основании вашего местоположения и предыдущих выборов.</p>
+<p><strong>Возможности</strong></p>
+<ul class="simple">
+<li><p>Получение геолокации встроенным способом через телеграмм или через текстовый адресс.</p></li>
+<li><p>Рекомендации по базе данных на основании расстояния</p></li>
+<li><p>Возможность ставить оценки рекомендациям, которые будут учитываться при дальнейших рекомендациях</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="id1">
+<h1>Содержание<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
+<section id="core-utils-item">
+<h2>core.utils.Item<a class="headerlink" href="#core-utils-item" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.utils.Item">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.utils.</span></span><span class="sig-name descname"><span class="pre">Item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.utils.Item" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Контейнер кандидата для рекомендации.</p>
+<p>Это может быть ресторан, парк или театр.
+Содержит название, адрес и координаты средний
+накопленный рейтинг.</p>
+</dd></dl>
+
+</section>
+<section id="core-utils-itemtype">
+<h2>core.utils.ItemType<a class="headerlink" href="#core-utils-itemtype" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.utils.ItemType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.utils.</span></span><span class="sig-name descname"><span class="pre">ItemType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.utils.ItemType" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Перечисление типов рекомендации.</p>
+<p>Является частью ключа, который определяет элемент рекомендации.</p>
+</dd></dl>
+
+</section>
+<section id="core-utils-itemid">
+<h2>core.utils.ItemId<a class="headerlink" href="#core-utils-itemid" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.utils.ItemId">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.utils.</span></span><span class="sig-name descname"><span class="pre">ItemId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.utils.ItemId" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Уникальная пара (type, id).</p>
+<p>Однозначно определяет элемент рекомендации
+и является ключом к словарю кандидатов.</p>
+</dd></dl>
+
+</section>
+<section id="core-utils-recommenditem">
+<h2>core.utils.RecommendItem<a class="headerlink" href="#core-utils-recommenditem" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.utils.RecommendItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.utils.</span></span><span class="sig-name descname"><span class="pre">RecommendItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.utils.RecommendItem" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Элемент рекомендации.</p>
+<p>Наследуется от Item, содержит user-item информацию,
+такую как расстояние и пр.</p>
+</dd></dl>
+
+</section>
+<section id="core-recommender-candidatesholder">
+<h2>core.recommender.CandidatesHolder<a class="headerlink" href="#core-recommender-candidatesholder" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.recommender.CandidatesHolder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.recommender.</span></span><span class="sig-name descname"><span class="pre">CandidatesHolder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type_to_candidates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.CandidatesHolder" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Хранилище кандидатов для рекомендации.</p>
+<p>В класс можно передать уже созданный словарь type_to_candidates,
+либо оставить поле пустым, после чего будет автоматически создан
+словарь type_to_candidates для всех доступных на текущий момент
+видов рекомендаций.</p>
+<p>Метод update обновит информацию о всех доступных в базе данных кандидатах,
+то есть перезапишет их для дальнейшего использования роекомендером.</p>
+</dd></dl>
+
+</section>
+<section id="core-recommender-embeddingsholder">
+<h2>core.recommender.EmbeddingsHolder<a class="headerlink" href="#core-recommender-embeddingsholder" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.recommender.EmbeddingsHolder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.recommender.</span></span><span class="sig-name descname"><span class="pre">EmbeddingsHolder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type_to_embeddings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.EmbeddingsHolder" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Хранилище эмбеддингов всех кандидатов.</p>
+<p>В класс можно передать уже созданный словарь type_to_embeddings,
+либо оставить поле пустым, после чего будет автоматически создан
+словарь type_to_embeddings для всех доступных на текущий момент
+видов рекомендаций.</p>
+<p>Метод update обновит информацию о всех доступных в базе данных эмбеддингах,
+то есть перезапишет их для дальнейшего использования роекомендером.</p>
+</dd></dl>
+
+</section>
+<section id="core-recommender-feedbackeventprocessor">
+<h2>core.recommender.FeedbackEventProcessor<a class="headerlink" href="#core-recommender-feedbackeventprocessor" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.recommender.FeedbackEventProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.recommender.</span></span><span class="sig-name descname"><span class="pre">FeedbackEventProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">history_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.FeedbackEventProcessor" title="Ссылка на это определение">¶</a></dt>
+<dd><p>В этом классе происходит взаимодействие пользователей с рекомендациями.</p>
+<p>Содержит метод write_user_item_rating(), который пишет
+оценку пользователя в файл history_path.</p>
+<p>Содержит метод read_user_history, который возвращает словарь item_to_rating
+с историей оценок пользователя, или None, если истории нет.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.FeedbackEventProcessor.clear_user_history">
+<span class="sig-name descname"><span class="pre">clear_user_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.FeedbackEventProcessor.clear_user_history" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Удаление пользовательской истории.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.FeedbackEventProcessor.read_user_history">
+<span class="sig-name descname"><span class="pre">read_user_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.FeedbackEventProcessor.read_user_history" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Читаем историю оценок пользователя.</p>
+<p>Возвращает словарь item_id_to_rating, который содержит последние
+limit оценок пользователя. Если limit не задан, то возвращает
+всю историю без ограничений.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.FeedbackEventProcessor.write_user_item_rating">
+<span class="sig-name descname"><span class="pre">write_user_item_rating</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rating_good</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.FeedbackEventProcessor.write_user_item_rating" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Записывает оценку пользователя элементу рекомендаций.</p>
+<p>Запись происходит в формате <cite>type,id,rating</cite>,
+где type и id - есть поля ItemId, а rating - плюс или минус единица
+в зависимости от оценки пользователя.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="core-recommender-recommender">
+<h2>core.recommender.Recommender<a class="headerlink" href="#core-recommender-recommender" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="core.recommender.Recommender">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">core.recommender.</span></span><span class="sig-name descname"><span class="pre">Recommender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates_holder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings_holder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feedback_event_processor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Основной класс рекомендера с единой для всех вертикалей логикой.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.before_recommend">
+<span class="sig-name descname"><span class="pre">before_recommend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USER_INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_history_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.before_recommend" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Подготовка к вызову рекомендера.</p>
+<p>Метод для подготовки данных перед вызовом рекомендера
+для его корректной работы:</p>
+<p>Создаёт множество recommend_history, если история пользователя
+отсутсвует. Записывает в item_id_to_rating последние user_history_limit
+оценок пользователя. Если user_history_limit не задано, то запишет
+всю историю пользователя.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.get_heavy_recommender_items">
+<span class="sig-name descname"><span class="pre">get_heavy_recommender_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USER_INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">light_recommender_items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.get_heavy_recommender_items" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Тяжёлый рекомендер.</p>
+<p>Возвращает список из limit рекомендательных карточек,
+отранжированных по косиносному расстоянию пользовательских
+и айтемных эмбеддингов Диего. Результат тяжёлого рекомендера
+будет обработан в stream_blender.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.get_light_recommender_items">
+<span class="sig-name descname"><span class="pre">get_light_recommender_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USER_INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.get_light_recommender_items" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Лёгкий рекомендер.</p>
+<p>Возвращает список из limit рекомендательных карточек,
+отранжированных по расстоянию, которые затем будут переданы
+в тяжёлый рекомендер.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.recommend">
+<span class="sig-name descname"><span class="pre">recommend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USER_INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_history_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">light_recommender_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heavy_recommender_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blender_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.recommend" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Основная функция рекомендера.</p>
+<p>Рекомендер возвращает список из limit карточек рекомендаций,
+которые затем будут обработаны в большом блендере</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="core.recommender.Recommender.stream_blender">
+<span class="sig-name descname"><span class="pre">stream_blender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">USER_INFO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recommended_items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blender_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Diego'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#core.recommender.Recommender.stream_blender" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Возвращает финальную пачку рекомендаций с вертикали.</p>
+<p>Получает карточки лёгкого рекомендера, перемешивает их
+согласно определённым правилам, которые задаются в mode,
+и возвращает финальные blender_limit карточек рекомендаций.</p>
+<p>По умолчанию выбран mode=“Diego“, который позволяет получать
+разнообразные по местоположению рекомендации. Параметр temperature
+задаёт степень разнообразия (чем больше temperature, тем его меньше)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Алфавитный указатель</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Поиск</span></a></p></li>
+</ul>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">local-recomendation-bot</a></h1>
+
+
+
+
+
+
+
+
+<h3>Навигация</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Быстрый поиск</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Искать" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, EvgMoiseev.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
