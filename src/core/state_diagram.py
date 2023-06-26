@@ -7,7 +7,7 @@ import gettext
 
 _ = gettext.translation(
     domain="messages",
-    localedir="locale",
+    localedir="src/locale",
     languages=["en"],
 ).gettext
 
