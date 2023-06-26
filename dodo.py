@@ -1,29 +1,32 @@
 import glob
 from doit.task import clean_targets
-# from doit.tools import create_folder
 
 
-# def task_pot():
-#     c1 = 'pybabel extract --input-dirs=. --output-file=messages.pot'
-#     return {'actions': [c1],
-#             'file_dep': glob.glob('*.py'),
-#             'targets': ['messages.pot'], }
+def task_pot():
+    c1 = 'pybabel extract --input-dirs=. --output-file=messages.pot'
+    return {
+            'actions': [c1],
+            'file_dep': glob.glob('*.py'),
+            'targets': ['messages.pot'],
+           }
 
 
-# def task_locale():
-#     c1 = 'pybabel update -D geoguesser_bot -d src/locale -i messages.pot'
-#     return {'actions': [c1],
-#             'file_dep': ['messages.pot'],
-#             'targets': ['src/locale/en/LC_MESSAGES/messages.po'], }
+def task_locale():
+    c1 = 'pybabel update -d src/locale -i messages.pot'
+    return {
+            'actions': [c1],
+            'file_dep': ['messages.pot'],
+            'targets': ['src/locale/en/LC_MESSAGES/messages.po'],
+           }
 
 
-# def task_mo():
-#     c1 = 'pybabel compile -D geoguesser -l en -i'
-#     c2 = ' locale/en/LC_MESSAGES/messages.po -d .'
-#     return {'actions': [c1 + c2],
-#             'file_dep': ['locale/en/LC_MESSAGES/messages.po'],
-#             'targets': ['locale/en/LC_MESSAGES/messages.mo'], }
-# 'task_dep': ['mo'],
+def task_mo():
+    c1 = 'pybabel compile -d src/locale --locale en -f'
+    return {
+            'actions': [c1],
+            'file_dep': ['src/locale/en/LC_MESSAGES/messages.po'],
+            'targets': ['src/locale/en/LC_MESSAGES/messages.mo'],
+           }
 
 
 def task_gitclean():
@@ -63,4 +66,6 @@ def task_wheel():
     return {
             'actions': ['pyproject-build -w'],
             'file_dep': glob.glob("*.py"),
+            'targets': glob.glob("dist/local_recommendation_bot*.whl"),
+            'clean': [clean_targets],
            }
