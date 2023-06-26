@@ -20,8 +20,15 @@ classifiers = [
 ]
 dynamic = ["dependencies"]
 
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.setuptools.dynamic]
 dependencies = { file = "requirements.txt" }
+
 
 [project.urls]
 Repository = "https://github.com/hgfs113/local-recommendation-bot"
