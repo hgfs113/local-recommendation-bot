@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-26 15:05+0300\n"
+"POT-Creation-Date: 2023-06-26 15:39+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #: src/core/state_diagram.py:21
 msgid "Рестораны 🍳"
-msgstr ""
+msgstr "Restraunts 🍳"
 
 #: src/core/state_diagram.py:22
 msgid "Магазины 🛒"
