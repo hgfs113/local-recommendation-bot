@@ -1,5 +1,7 @@
 from telebot import TeleBot, types
 from core import recommender, state_diagram
+from pathlib import Path
+import os
 
 
 TOKEN = '6109688099:AAGJZuj0kVPEdjTZgaO27O5ZF-ey2WfFMis'
@@ -76,8 +78,9 @@ def get_text_messages(message):
 
 
 def main():
-    food_path = 'src/PlacesDatabase/food_places'
-    shop_path = 'src/PlacesDatabase/shop_places'
+    prefix = Path(os.path.dirname(__file__)).parent.absolute()
+    food_path = os.path.join(prefix, "PlacesDatabase/food_places")
+    shop_path = os.path.join(prefix, "PlacesDatabase/shop_places")
     CANDIDATES_HOLDER.update(
         food_path=food_path,
         shop_path=shop_path)

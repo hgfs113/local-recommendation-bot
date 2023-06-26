@@ -3,11 +3,16 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from core import utils
 from collections import defaultdict
 import gettext
+from pathlib import Path
+import os
 
 
 _ = gettext.translation(
     domain="messages",
-    localedir="src/locale",
+    localedir=os.path.join(
+        Path(os.path.dirname(__file__)).parent.absolute(),
+        "locale"
+    ),
     languages=["en"],
 ).gettext
 
